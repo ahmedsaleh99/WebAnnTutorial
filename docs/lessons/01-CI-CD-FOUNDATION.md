@@ -268,7 +268,7 @@ __pycache__/
 .pytest_cache/
 .coverage
 htmlcov/
-.venv/
+.venv*/
 venv/
 db.sqlite3
 media/
@@ -392,7 +392,7 @@ jobs:
     timeout-minutes: 5
     steps:
       - name: Check out the repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
 
       - name: Run the same checks used locally
         run: ./scripts/check
@@ -434,7 +434,7 @@ on the pull request. Branch protection will require that readable check.
 `timeout-minutes: 5` fails a stuck job instead of allowing it to run
 indefinitely.
 
-The first step uses `actions/checkout@v4`. An **action** is reusable workflow
+The first step uses `actions/checkout@v6`. An **action** is reusable workflow
 code; checkout downloads the Git revision being tested into the otherwise empty
 runner workspace. Without it, `./scripts/check` would not exist on the runner.
 
@@ -478,7 +478,7 @@ and use the acceptance exercise to observe a failure and recovery on GitHub.
 
 ### Action version security
 
-`actions/checkout@v4` uses a major-version tag, which is readable and easy to
+`actions/checkout@v6` uses a major-version tag, which is readable and easy to
 maintain for this tutorial. A security-sensitive production repository can pin
 an action to a reviewed full commit SHA so its code cannot change behind the
 tag. Dependabot can then propose SHA updates through normal pull requests.
@@ -488,7 +488,7 @@ tag. Dependabot can then propose SHA updates through normal pull requests.
 ### Why dependencies need maintenance
 
 The workflow already depends on external code through
-`actions/checkout@v4`. Later, the backend will depend on Python packages and the
+`actions/checkout@v6`. Later, the backend will depend on Python packages and the
 frontend will depend on npm packages. Dependencies receive bug fixes and
 security updates, but manually checking every package is easy to forget.
 
@@ -631,7 +631,7 @@ jobs:
           fi
 
       - name: Check out the requested commit
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
         with:
           ref: ${{ inputs.commit_sha }}
 

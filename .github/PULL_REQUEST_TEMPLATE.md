@@ -18,7 +18,7 @@
 
 ## Verification
 
-- [ ] `./scripts/check` passes locally.
+- [ ] `make check` passes locally.
 - [ ] Required CI checks pass.
 - [ ] I documented any manual checks below.
 
@@ -39,4 +39,3 @@ Manual checks:
 - What matched:
 - What differed:
 - Changes made after comparison:
-

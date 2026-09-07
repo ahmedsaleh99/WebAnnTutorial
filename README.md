@@ -22,6 +22,8 @@ pass.
 - [Tutorial plan](docs/TUTORIAL_PLAN.md)
 - [Student repository workflow](docs/STUDENT_WORKFLOW.md)
 - [Lesson 1: repository workflow and CI/CD foundation](docs/lessons/01-CI-CD-FOUNDATION.md)
+- [Lesson 2: local developer tooling and quality gates](docs/lessons/02-DEVELOPER-TOOLING.md)
+- [Developer tooling reference](docs/TOOLING.md)
 - [GitHub branch and environment protection](docs/BRANCH_PROTECTION.md)
 
 Each lesson includes a student walkthrough and a gold-standard reference
