@@ -134,9 +134,10 @@ clearly identifies where environment secrets will eventually live.
 **Concepts:** reproducible commands, formatting versus linting, static analysis,
 pre-commit checks, version pinning, and fast feedback.
 
-**Deliverables:** language/runtime version files, task commands (Makefile or
-equivalent), Python and TypeScript quality-tool configuration, and documentation
-for setup and troubleshooting.
+**Deliverables:** Python and Node runtime version files, task commands in a
+Makefile, dependency-pinned pre-commit automation, shell syntax checks, and
+documentation for setup and troubleshooting. Language-specific linting and type
+checking are added when the Django and React source trees are introduced.
 
 **Acceptance criteria:** one command runs every check available at this stage;
 CI invokes the same commands rather than duplicating their logic; an introduced

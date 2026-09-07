@@ -9,9 +9,9 @@ requests. Do not commit lesson work directly to `main`.
 2. Create the lesson branch shown in that lesson's guide.
 3. Read the acceptance criteria and write a failing test or check before
    implementation when the lesson adds behavior.
-4. Run `./scripts/check` and confirm the relevant test or check fails for the
+4. Run `make check` and confirm the relevant test or check fails for the
    expected reason.
-5. Implement only the lesson scope, then rerun `./scripts/check`.
+5. Implement only the lesson scope, then rerun `make check`.
 6. Refactor, review the diff, commit it, and push the branch.
 7. Open a pull request and complete every section of the template.
 8. Merge only after required checks pass and review is complete.
@@ -21,9 +21,9 @@ For the first Lesson 1 pull request, copy
 cannot discover it until it has been merged into `main`. Later pull requests
 receive the template automatically.
 
-For the current documentation-only foundation, `./scripts/check` runs repository
-policy checks. Later lessons will extend that same entry point with backend,
-frontend, and container checks.
+`make check` is the public quality command. It currently runs repository policy
+and shell syntax checks; later lessons extend it with backend, frontend, and
+container checks.
 
 ## Branch and commit naming
 

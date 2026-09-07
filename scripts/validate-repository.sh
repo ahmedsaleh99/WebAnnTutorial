@@ -8,10 +8,16 @@ required_files=(
   ".github/workflows/cd.yml"
   ".github/workflows/ci.yml"
   ".gitignore"
+  ".nvmrc"
+  ".pre-commit-config.yaml"
+  ".python-version"
   "CONTRIBUTING.md"
   "LICENSE"
+  "Makefile"
   "README.md"
   "docs/BRANCH_PROTECTION.md"
+  "docs/TOOLING.md"
+  "requirements-dev.txt"
 )
 
 failure_count=0
@@ -23,8 +29,24 @@ for required_file in "${required_files[@]}"; do
   fi
 done
 
-if [[ ! -x "scripts/check" ]]; then
-  echo "ERROR: scripts/check must be executable" >&2
+for executable_file in \
+  scripts/check \
+  scripts/check-python-runtime.sh \
+  scripts/check-shell.sh \
+  scripts/validate-repository.sh; do
+  if [[ ! -x "$executable_file" ]]; then
+    echo "ERROR: $executable_file must be executable" >&2
+    failure_count=$((failure_count + 1))
+  fi
+done
+
+if [[ -f .python-version ]] && ! grep -qx '3.12' .python-version; then
+  echo "ERROR: .python-version must declare Python 3.12" >&2
+  failure_count=$((failure_count + 1))
+fi
+
+if [[ -f .nvmrc ]] && ! grep -qx '22' .nvmrc; then
+  echo "ERROR: .nvmrc must declare Node.js 22" >&2
   failure_count=$((failure_count + 1))
 fi
 
