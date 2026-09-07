@@ -1,0 +1,52 @@
+name: CD skeleton
+
+on:
+  workflow_dispatch:
+    inputs:
+      commit_sha:
+        description: Full commit SHA already validated by CI
+        required: true
+        type: string
+
+permissions:
+  contents: read
+
+concurrency:
+  group: production-deployment
+  cancel-in-progress: false
+
+jobs:
+  validate-release-candidate:
+    name: Validate release candidate
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Validate commit SHA format
+        env:
+          CANDIDATE_SHA: ${{ inputs.commit_sha }}
+        run: |
+          if [[ ! "$CANDIDATE_SHA" =~ ^[0-9a-fA-F]{40}$ ]]; then
+            echo "commit_sha must be a full 40-character Git commit SHA" >&2
+            exit 1
+          fi
+
+      - name: Check out the requested commit
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ inputs.commit_sha }}
+
+      - name: Run the complete quality gate
+        run: ./scripts/check
+
+      - name: Record the immutable candidate
+        run: git rev-parse HEAD
+
+  production-approval:
+    name: Production approval placeholder
+    needs: validate-release-candidate
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    environment: production
+    steps:
+      - name: Explain the intentional stopping point
+        run: echo "Approval passed; deployment is added in Lesson 24."

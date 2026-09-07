@@ -1,0 +1,35 @@
+# Operating systems and editors
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/
+*.swp
+
+# Environment variables and secrets
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+
+# Python and Django
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.coverage
+htmlcov/
+.venv/
+venv/
+db.sqlite3
+media/
+staticfiles/
+
+# Node, Vite, and TypeScript
+node_modules/
+dist/
+coverage/
+*.tsbuildinfo
+
+# Docker and local runtime data
+docker-data/
+*.log
