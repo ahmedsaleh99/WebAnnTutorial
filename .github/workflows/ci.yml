@@ -24,3 +24,14 @@ jobs:
 
       - name: Run the same checks used locally
         run: make check
+
+  container-smoke:
+    name: Container smoke tests
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: Check out the repository
+        uses: actions/checkout@v6
+
+      - name: Build and test the Compose stack
+        run: make container-test

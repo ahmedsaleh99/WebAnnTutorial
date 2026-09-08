@@ -1,4 +1,4 @@
-.PHONY: help bootstrap hooks check validate shell-check verify-python
+.PHONY: help bootstrap container-check container-test hooks check validate shell-check verify-python
 
 PYTHON ?= python3
 VENV := .venv
@@ -9,6 +9,8 @@ help:
 	@echo "  bootstrap   Create the tooling environment and install dependencies"
 	@echo "  hooks       Install the Git pre-commit hook"
 	@echo "  check       Run every quality check available in this lesson"
+	@echo "  container-check Validate the Docker Compose configuration"
+	@echo "  container-test  Build and smoke-test the container stack"
 	@echo "  validate    Validate repository policy"
 	@echo "  shell-check Check shell scripts for syntax errors"
 
@@ -27,6 +29,12 @@ hooks: bootstrap
 
 check:
 	./scripts/check
+
+container-check:
+	./scripts/check-compose.sh
+
+container-test:
+	./scripts/test-containers.sh
 
 validate:
 	./scripts/validate-repository.sh

@@ -15,8 +15,16 @@ required_files=(
   "LICENSE"
   "Makefile"
   "README.md"
+  "backend/.dockerignore"
+  "backend/Dockerfile"
+  "backend/server.py"
+  "docker-compose.yml"
   "docs/BRANCH_PROTECTION.md"
+  "docs/DOCKER.md"
   "docs/TOOLING.md"
+  "frontend/.dockerignore"
+  "frontend/Dockerfile"
+  "frontend/server.mjs"
   "requirements-dev.txt"
 )
 
@@ -31,8 +39,10 @@ done
 
 for executable_file in \
   scripts/check \
+  scripts/check-compose.sh \
   scripts/check-python-runtime.sh \
   scripts/check-shell.sh \
+  scripts/test-containers.sh \
   scripts/validate-repository.sh; do
   if [[ ! -x "$executable_file" ]]; then
     echo "ERROR: $executable_file must be executable" >&2
