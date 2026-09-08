@@ -7,3 +7,4 @@ cd "$repository_root"
 bash scripts/validate-repository.sh
 bash scripts/check-shell.sh
 bash scripts/check-compose.sh
+bash scripts/check-backend.sh

@@ -24,6 +24,7 @@ pass.
 - [Lesson 1: repository workflow and CI/CD foundation](docs/lessons/01-CI-CD-FOUNDATION.md)
 - [Lesson 2: local developer tooling and quality gates](docs/lessons/02-DEVELOPER-TOOLING.md)
 - [Lesson 3: Docker and Compose foundations](docs/lessons/03-DOCKER-COMPOSE.md)
+- [Lesson 4: Django foundations and the first test](docs/lessons/04-DJANGO-FOUNDATIONS.md)
 - [Developer tooling reference](docs/TOOLING.md)
 - [Docker development reference](docs/DOCKER.md)
 - [GitHub branch and environment protection](docs/BRANCH_PROTECTION.md)

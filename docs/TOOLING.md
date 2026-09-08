@@ -24,8 +24,9 @@ Python 3.12
 Node.js 22
 ```
 
-Lesson 2 uses Python to install pre-commit. Node.js is declared now but is not
-used until the React lessons.
+Lesson 2 uses Python to install pre-commit. Lesson 4 adds Django and Ruff to the
+same environment. Node.js is declared now but is not used until the React
+lessons.
 
 ## Setup sequence
 
@@ -134,6 +135,18 @@ make help         # list supported tasks
 make check        # run all current checks
 make validate     # run repository-policy checks only
 make shell-check  # parse shell scripts without executing them
+make backend-check # format-check, lint, validate, and test Django
+make backend-test  # run only Django tests
+make backend-run   # start Django at http://127.0.0.1:8001
+```
+
+`make backend-run` supplies an explicitly insecure development key. Runtime
+settings come from environment variables; real secrets must never be committed.
+Port 8001 avoids conflicting with the Docker API on port 8000. Override it when
+necessary:
+
+```bash
+make BACKEND_PORT=8010 backend-run
 ```
 
 ## Recover from a `.venv` created with the wrong Python
@@ -186,4 +199,3 @@ Miniforge installation instructions for the installation-specific path.
 
 Run `make check`, correct the reported problem, stage the correction, and commit
 again. A hook provides early feedback; CI remains the shared enforcement gate.
-

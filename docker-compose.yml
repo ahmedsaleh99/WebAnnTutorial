@@ -5,12 +5,12 @@ services:
     build:
       context: ./backend
     environment:
-      DATA_DIRECTORY: /data
-      PORT: "8000"
+      DJANGO_ALLOWED_HOSTS: localhost,127.0.0.1,api
+      DJANGO_DATABASE_PATH: /tmp/db.sqlite3
+      DJANGO_DEBUG: "true"
+      DJANGO_SECRET_KEY: insecure-compose-development-key
     ports:
       - "${API_PORT:-8000}:8000"
-    volumes:
-      - api-data:/data
     healthcheck:
       test:
         - CMD
@@ -50,6 +50,3 @@ services:
 
 networks:
   application:
-
-volumes:
-  api-data:

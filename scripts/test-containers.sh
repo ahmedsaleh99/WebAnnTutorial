@@ -39,11 +39,4 @@ assert_response_contains() {
 assert_response_contains "API health check" "http://localhost:${API_PORT}/health/" '"status": "ok"'
 assert_response_contains "frontend health check" "http://localhost:${FRONTEND_PORT}/health/" '"status":"ok"'
 assert_response_contains "service-to-service request" "http://localhost:${FRONTEND_PORT}/api-health/" '"service": "api"'
-assert_response_contains "first persisted visit" "http://localhost:${API_PORT}/visits/" '"visits": 1'
-
-"${compose[@]}" restart api
-"${compose[@]}" up --detach --wait
-
-assert_response_contains "visit after API restart" "http://localhost:${API_PORT}/visits/" '"visits": 2'
-
 echo "Container smoke tests passed."
