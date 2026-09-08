@@ -25,8 +25,10 @@ pass.
 - [Lesson 2: local developer tooling and quality gates](docs/lessons/02-DEVELOPER-TOOLING.md)
 - [Lesson 3: Docker and Compose foundations](docs/lessons/03-DOCKER-COMPOSE.md)
 - [Lesson 4: Django foundations and the first test](docs/lessons/04-DJANGO-FOUNDATIONS.md)
+- [Lesson 5: PostgreSQL, models, and migrations](docs/lessons/05-POSTGRES-DOMAIN-MODEL.md)
 - [Developer tooling reference](docs/TOOLING.md)
 - [Docker development reference](docs/DOCKER.md)
+- [Core data model](docs/DATA_MODEL.md)
 - [GitHub branch and environment protection](docs/BRANCH_PROTECTION.md)
 
 Each lesson includes a student walkthrough and a gold-standard reference

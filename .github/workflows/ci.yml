@@ -18,6 +18,25 @@ jobs:
     name: Repository validation
     runs-on: ubuntu-latest
     timeout-minutes: 5
+    services:
+      postgres:
+        image: postgres:17-alpine
+        env:
+          POSTGRES_DB: webann_test
+          POSTGRES_PASSWORD: postgres
+          POSTGRES_USER: postgres
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U postgres -d webann_test"
+          --health-interval 2s
+          --health-timeout 2s
+          --health-retries 15
+    env:
+      POSTGRES_DB: webann_test
+      POSTGRES_HOST: localhost
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_USER: postgres
     steps:
       - name: Check out the repository
         uses: actions/checkout@v6

@@ -18,17 +18,23 @@ required_files=(
   "backend/.dockerignore"
   "backend/Dockerfile"
   "backend/annotations/apps.py"
+  "backend/annotations/migrations/0001_initial.py"
+  "backend/annotations/models.py"
+  "backend/annotations/tests/builders.py"
   "backend/annotations/tests/test_health.py"
+  "backend/annotations/tests/test_models.py"
   "backend/annotations/urls.py"
   "backend/annotations/views.py"
   "backend/config/settings.py"
   "backend/config/urls.py"
   "backend/config/wsgi.py"
+  "backend/entrypoint.sh"
   "backend/manage.py"
   "backend/requirements.txt"
   "docker-compose.yml"
   "docs/BRANCH_PROTECTION.md"
   "docs/DOCKER.md"
+  "docs/DATA_MODEL.md"
   "docs/TOOLING.md"
   "frontend/.dockerignore"
   "frontend/Dockerfile"
@@ -45,6 +51,11 @@ for required_file in "${required_files[@]}"; do
     failure_count=$((failure_count + 1))
   fi
 done
+
+if [[ -f backend/entrypoint.sh && ! -x backend/entrypoint.sh ]]; then
+  echo "ERROR: backend/entrypoint.sh must be executable" >&2
+  failure_count=$((failure_count + 1))
+fi
 
 for executable_file in \
   scripts/check \

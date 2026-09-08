@@ -18,6 +18,7 @@ export DJANGO_DEBUG="false"
 "$ruff" format --check backend
 "$ruff" check backend
 "$python" backend/manage.py check
+"$python" backend/manage.py makemigrations --check --dry-run
 "$python" backend/manage.py test annotations
 
 echo "Backend quality checks passed."
