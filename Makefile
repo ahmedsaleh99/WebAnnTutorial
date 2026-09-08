@@ -1,6 +1,7 @@
 .PHONY: backend-check backend-run backend-test bootstrap check container-check container-test hooks shell-check validate verify-python
 
 PYTHON ?= python3
+BACKEND_PORT ?= 8001
 VENV := .venv
 PRE_COMMIT := $(VENV)/bin/pre-commit
 
@@ -11,7 +12,7 @@ help:
 	@echo "  check       Run every quality check available in this lesson"
 	@echo "  backend-check Format, lint, validate, and test the Django backend"
 	@echo "  backend-test  Run the Django test suite"
-	@echo "  backend-run   Start Django's local development server"
+	@echo "  backend-run   Start Django locally on port $(BACKEND_PORT)"
 	@echo "  container-check Validate the Docker Compose configuration"
 	@echo "  container-test  Build and smoke-test the container stack"
 	@echo "  validate    Validate repository policy"
@@ -40,7 +41,7 @@ backend-test: bootstrap
 	DJANGO_SECRET_KEY=test-only-not-a-production-secret $(VENV)/bin/python backend/manage.py test annotations
 
 backend-run: bootstrap
-	DJANGO_SECRET_KEY=insecure-local-development-key DJANGO_DEBUG=true $(VENV)/bin/python backend/manage.py runserver
+	DJANGO_SECRET_KEY=insecure-local-development-key DJANGO_DEBUG=true $(VENV)/bin/python backend/manage.py runserver $(BACKEND_PORT)
 
 container-check:
 	./scripts/check-compose.sh

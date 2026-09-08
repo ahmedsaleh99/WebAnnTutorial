@@ -245,7 +245,8 @@ make backend-test
 make backend-run
 ```
 
-`backend-run` starts the development server with explicitly local settings. It
+`backend-run` starts the development server on port 8001 with explicitly local
+settings. Port 8001 avoids a collision when the Compose API owns port 8000. It
 is for development only, not production serving. Run:
 
 ```bash
@@ -309,10 +310,17 @@ git diff --check
 git status --short
 ```
 
-Start the backend manually and visit <http://127.0.0.1:8000/health/>:
+Start the backend manually and visit <http://127.0.0.1:8001/health/>:
 
 ```bash
 make backend-run
+```
+
+If port 8001 is also occupied, select another host port without editing the
+Makefile:
+
+```bash
+make BACKEND_PORT=8010 backend-run
 ```
 
 Open a pull request titled `Lesson 4: add Django foundations`. Include:

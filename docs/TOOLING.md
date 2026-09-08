@@ -137,11 +137,17 @@ make validate     # run repository-policy checks only
 make shell-check  # parse shell scripts without executing them
 make backend-check # format-check, lint, validate, and test Django
 make backend-test  # run only Django tests
-make backend-run   # start Django at http://127.0.0.1:8000
+make backend-run   # start Django at http://127.0.0.1:8001
 ```
 
 `make backend-run` supplies an explicitly insecure development key. Runtime
 settings come from environment variables; real secrets must never be committed.
+Port 8001 avoids conflicting with the Docker API on port 8000. Override it when
+necessary:
+
+```bash
+make BACKEND_PORT=8010 backend-run
+```
 
 ## Recover from a `.venv` created with the wrong Python
 
