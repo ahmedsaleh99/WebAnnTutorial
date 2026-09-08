@@ -34,6 +34,10 @@ Open:
 - API health: <http://localhost:8000/health/>
 - frontend-to-API network check: <http://localhost:5173/api-health/>
 
+The `db` service is PostgreSQL. It is private to the Compose network and stores
+data in the `postgres-data` named volume. The API waits for PostgreSQL to become
+healthy, then its entrypoint applies committed migrations before Django starts.
+
 ## Apply source changes
 
 The images copy source during `docker build`. Rebuild and replace services
@@ -51,9 +55,19 @@ Later development configurations will add faster reload loops where useful.
 docker compose down
 ```
 
-This removes the containers and Compose network. Lesson 4 uses a disposable
-SQLite database inside the API container. Lesson 5 introduces PostgreSQL and a
-named database volume.
+This removes containers and the Compose network but preserves PostgreSQL data.
+To deliberately reset the local database, add `--volumes`:
+
+```bash
+docker compose down --volumes
+```
+
+Inspect migration state or open PostgreSQL's shell:
+
+```bash
+docker compose exec api python manage.py showmigrations
+docker compose exec db psql --username webann --dbname webann
+```
 
 ## Quality and smoke tests
 
@@ -63,7 +77,7 @@ make container-test
 ```
 
 The smoke test uses a separate Compose project name and always removes its test
-containers and network.
+containers, network, and PostgreSQL volume.
 
 ## Troubleshooting
 

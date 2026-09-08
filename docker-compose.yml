@@ -1,14 +1,37 @@
 name: webann-tutorial
 
 services:
+  db:
+    image: postgres:17-alpine
+    environment:
+      POSTGRES_DB: webann
+      POSTGRES_PASSWORD: insecure-compose-database-password
+      POSTGRES_USER: webann
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U webann -d webann"]
+      interval: 2s
+      timeout: 2s
+      retries: 15
+      start_period: 2s
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+    networks:
+      - application
+
   api:
     build:
       context: ./backend
     environment:
       DJANGO_ALLOWED_HOSTS: localhost,127.0.0.1,api
-      DJANGO_DATABASE_PATH: /tmp/db.sqlite3
       DJANGO_DEBUG: "true"
       DJANGO_SECRET_KEY: insecure-compose-development-key
+      POSTGRES_DB: webann
+      POSTGRES_HOST: db
+      POSTGRES_PASSWORD: insecure-compose-database-password
+      POSTGRES_USER: webann
+    depends_on:
+      db:
+        condition: service_healthy
     ports:
       - "${API_PORT:-8000}:8000"
     healthcheck:
@@ -50,3 +73,6 @@ services:
 
 networks:
   application:
+
+volumes:
+  postgres-data:

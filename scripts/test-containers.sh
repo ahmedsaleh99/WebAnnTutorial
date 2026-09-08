@@ -39,4 +39,16 @@ assert_response_contains() {
 assert_response_contains "API health check" "http://localhost:${API_PORT}/health/" '"status": "ok"'
 assert_response_contains "frontend health check" "http://localhost:${FRONTEND_PORT}/health/" '"status":"ok"'
 assert_response_contains "service-to-service request" "http://localhost:${FRONTEND_PORT}/api-health/" '"service": "api"'
+
+migrations="$("${compose[@]}" exec --no-TTY api python manage.py showmigrations annotations)"
+if [[ "$migrations" != *"[X] 0001_initial"* ]]; then
+  echo "FAIL: the initial annotations migration was not applied." >&2
+  echo "$migrations" >&2
+  exit 1
+fi
+echo "PASS: initial annotations migration"
+
+"${compose[@]}" exec --no-TTY api python manage.py test annotations
+echo "PASS: Django tests against PostgreSQL"
+
 echo "Container smoke tests passed."
