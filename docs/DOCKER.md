@@ -36,8 +36,8 @@ Open:
 
 ## Apply source changes
 
-Lesson 3 images copy source during `docker build`. Rebuild and replace services
-after changing `backend/server.py` or `frontend/server.mjs`:
+The images copy source during `docker build`. Rebuild and replace services
+after changing Django backend code or `frontend/server.mjs`:
 
 ```bash
 docker compose up --build --detach --wait
@@ -51,12 +51,9 @@ Later development configurations will add faster reload loops where useful.
 docker compose down
 ```
 
-This removes containers and the Compose network but preserves `api-data`.
-Delete the volume only when intentionally discarding its local lesson data:
-
-```bash
-docker compose down --volumes
-```
+This removes the containers and Compose network. Lesson 4 uses a disposable
+SQLite database inside the API container. Lesson 5 introduces PostgreSQL and a
+named database volume.
 
 ## Quality and smoke tests
 
@@ -66,8 +63,7 @@ make container-test
 ```
 
 The smoke test uses a separate Compose project name and always removes its test
-containers, network, and volume. It does not delete the normal development
-stack's `api-data` volume.
+containers and network.
 
 ## Troubleshooting
 

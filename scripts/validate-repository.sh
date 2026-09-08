@@ -17,7 +17,15 @@ required_files=(
   "README.md"
   "backend/.dockerignore"
   "backend/Dockerfile"
-  "backend/server.py"
+  "backend/annotations/apps.py"
+  "backend/annotations/tests/test_health.py"
+  "backend/annotations/urls.py"
+  "backend/annotations/views.py"
+  "backend/config/settings.py"
+  "backend/config/urls.py"
+  "backend/config/wsgi.py"
+  "backend/manage.py"
+  "backend/requirements.txt"
   "docker-compose.yml"
   "docs/BRANCH_PROTECTION.md"
   "docs/DOCKER.md"
@@ -25,6 +33,7 @@ required_files=(
   "frontend/.dockerignore"
   "frontend/Dockerfile"
   "frontend/server.mjs"
+  "pyproject.toml"
   "requirements-dev.txt"
 )
 
@@ -39,6 +48,7 @@ done
 
 for executable_file in \
   scripts/check \
+  scripts/check-backend.sh \
   scripts/check-compose.sh \
   scripts/check-python-runtime.sh \
   scripts/check-shell.sh \

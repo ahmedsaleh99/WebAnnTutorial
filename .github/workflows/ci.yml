@@ -22,6 +22,18 @@ jobs:
       - name: Check out the repository
         uses: actions/checkout@v6
 
+      - name: Set up Python
+        uses: actions/setup-python@v6
+        with:
+          python-version-file: .python-version
+          cache: pip
+          cache-dependency-path: |
+            backend/requirements.txt
+            requirements-dev.txt
+
+      - name: Install development dependencies
+        run: make bootstrap
+
       - name: Run the same checks used locally
         run: make check
 

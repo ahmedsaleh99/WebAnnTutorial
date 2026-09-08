@@ -5,14 +5,15 @@ ENV PYTHONDONTWRITEBYTECODE=1 \
 
 WORKDIR /app
 
-RUN useradd --create-home --uid 10001 appuser \
-    && mkdir /data \
-    && chown appuser:appuser /data
+RUN useradd --create-home --uid 10001 appuser
 
-COPY --chown=appuser:appuser server.py ./server.py
+COPY requirements.txt ./requirements.txt
+RUN pip install --no-cache-dir --requirement requirements.txt
+
+COPY --chown=appuser:appuser . .
 
 USER appuser
 
 EXPOSE 8000
 
-CMD ["python", "server.py"]
+CMD ["python", "manage.py", "runserver", "0.0.0.0:8000"]
