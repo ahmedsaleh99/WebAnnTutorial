@@ -39,6 +39,7 @@ assert_response_contains() {
 assert_response_contains "API health check" "http://localhost:${API_PORT}/health/" '"status": "ok"'
 assert_response_contains "frontend health check" "http://localhost:${FRONTEND_PORT}/health/" '"status":"ok"'
 assert_response_contains "service-to-service request" "http://localhost:${FRONTEND_PORT}/api-health/" '"service": "api"'
+assert_response_contains "paginated template API" "http://localhost:${API_PORT}/api/templates/" '"results":[]'
 
 migrations="$("${compose[@]}" exec --no-TTY api python manage.py showmigrations annotations)"
 if [[ "$migrations" != *"[X] 0001_initial"* ]]; then
