@@ -1,10 +1,21 @@
+from django.contrib.auth import get_user_model
 from rest_framework import status
 from rest_framework.test import APITestCase
 
 from .builders import create_dimension, create_project, create_template
 
 
-class TemplateApiTests(APITestCase):
+class AuthenticatedAdminApiTestCase(APITestCase):
+    def setUp(self):
+        self.user = get_user_model().objects.create_superuser(
+            username="api-admin",
+            email="admin@example.com",
+            password="AdminPassword9!",
+        )
+        self.client.force_authenticate(self.user)
+
+
+class TemplateApiTests(AuthenticatedAdminApiTestCase):
     def test_create_and_list_templates_with_stable_response_shapes(self):
         create_response = self.client.post(
             "/api/templates/",
@@ -60,7 +71,7 @@ class TemplateApiTests(APITestCase):
         )
 
 
-class ProjectApiTests(APITestCase):
+class ProjectApiTests(AuthenticatedAdminApiTestCase):
     def test_create_retrieve_update_and_delete_project(self):
         template = create_template()
         create_response = self.client.post(
@@ -148,7 +159,7 @@ class ProjectApiTests(APITestCase):
         )
 
 
-class ProjectConfigurationApiTests(APITestCase):
+class ProjectConfigurationApiTests(AuthenticatedAdminApiTestCase):
     def test_create_and_filter_dimensions(self):
         included_project = create_project()
         excluded_project = create_project()

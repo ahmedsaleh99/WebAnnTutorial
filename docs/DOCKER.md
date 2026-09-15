@@ -98,7 +98,7 @@ the host can reach both published ports
     ↓
 the frontend can reach the API through Compose DNS
     ↓
-a representative DRF endpoint returns its pagination contract
+a representative protected DRF endpoint rejects anonymous access
     ↓
 Django tests pass against PostgreSQL
 ```
@@ -126,9 +126,10 @@ or container permission problem.
 8. Calls the API and frontend health endpoints from the host.
 9. Calls the frontend's API-health endpoint, proving that the frontend container
    resolves `api` and communicates across the internal network.
-10. Calls `/api/templates/` and checks for an empty `results` array, proving one
-    representative database-backed DRF route works in the assembled image.
-11. Runs `showmigrations` inside the API and verifies `0001_initial` is applied.
+10. Calls `/api/templates/` anonymously and requires HTTP 401, proving the built
+    API no longer exposes configuration without credentials.
+11. Runs `showmigrations` inside the API and verifies both annotations
+    migrations are applied.
 12. Runs the Django suite inside the API container, where Django creates an
     isolated PostgreSQL test database and removes it afterward.
 13. Runs `docker compose down --volumes --remove-orphans` through the trap,
@@ -138,7 +139,7 @@ The script prints a named `PASS` or `FAIL` message for each HTTP assertion and
 prints an unexpected response when its content is wrong. This makes CI failures
 diagnosable without rerunning them locally.
 
-### Why only one representative CRUD endpoint is curled
+### Why only one representative protected endpoint is curled
 
 The smoke script requests `/api/templates/`, but it does not recreate every API
 scenario using shell commands. The Django API tests already cover templates,
@@ -147,10 +148,10 @@ and deletion behavior. Those tests also run inside the container against
 PostgreSQL.
 
 The template list is a useful representative because it requires no fixture
-data while still crossing routing, the DRF router, a ViewSet, serializer,
-pagination, ORM, PostgreSQL connection, and JSON rendering. Repeating every
-endpoint in Bash would duplicate more precise API tests and make failures harder
-to understand.
+data and crosses routing, the DRF router, authentication, and ViewSet permission
+checks. In Lesson 7, HTTP 401 is the expected behavior. Repeating every endpoint
+and role in Bash would duplicate the more precise permission-matrix tests, which
+run inside the same container against PostgreSQL.
 
 Use this test-layer division:
 
