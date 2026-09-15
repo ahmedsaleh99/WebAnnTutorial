@@ -9,14 +9,20 @@ from annotations.models import (
     Project,
     ProjectTemplate,
     Subject,
+    VideoView,
 )
 
 from .builders import (
     create_dimension,
+    create_job,
     create_label,
     create_project,
+    create_result,
     create_subject,
+    create_task,
     create_template,
+    create_video_asset,
+    create_video_view,
 )
 
 
@@ -96,3 +102,49 @@ class SubjectTests(TestCase):
         self.assertFalse(Project.objects.filter(pk=project.pk).exists())
         self.assertEqual(AnnotationDimension.objects.count(), 0)
         self.assertEqual(Subject.objects.count(), 0)
+
+
+class WorkflowModelTests(TestCase):
+    def test_video_view_rejects_asset_from_another_project(self):
+        task = create_task()
+        view = VideoView(
+            task=task,
+            asset=create_video_asset(),
+            name="Foreign camera",
+            role=VideoView.Role.MAIN,
+        )
+
+        with self.assertRaises(ValidationError):
+            view.full_clean()
+
+    def test_subject_view_requires_a_subject_included_in_the_task(self):
+        task = create_task()
+        subject = create_subject(project=task.project)
+        view = VideoView(
+            task=task,
+            asset=create_video_asset(project=task.project),
+            subject=subject,
+            name="Subject camera",
+            role=VideoView.Role.SUBJECT,
+        )
+
+        with self.assertRaises(ValidationError):
+            view.full_clean()
+
+    def test_task_has_only_one_main_video(self):
+        first_view = create_video_view()
+
+        with self.assertRaises(IntegrityError), transaction.atomic():
+            create_video_view(task=first_view.task, role=VideoView.Role.MAIN)
+
+    def test_duplicate_task_assignment_for_annotator_is_rejected(self):
+        job = create_job()
+
+        with self.assertRaises(IntegrityError), transaction.atomic():
+            create_job(task=job.task, assigned_to=job.assigned_to)
+
+    def test_work_item_has_at_most_one_result(self):
+        result = create_result()
+
+        with self.assertRaises(IntegrityError), transaction.atomic():
+            create_result(work_item=result.work_item)

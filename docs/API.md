@@ -9,6 +9,12 @@ Lesson 6 exposes the configuration domain beneath `/api/`.
 | Annotation dimensions | `/api/dimensions/` | `project` UUID |
 | Annotation labels | `/api/labels/` | `dimension` UUID |
 | Subjects | `/api/subjects/` | `project` UUID |
+| Tasks | `/api/tasks/` | `project` UUID |
+| Video assets | `/api/video-assets/` | — |
+| Video views | `/api/video-views/` | — |
+| Annotation jobs | `/api/jobs/` | — |
+| Annotation work items | `/api/work-items/` | — |
+| Annotation results | `/api/results/` | — |
 
 Collection endpoints support `GET` and `POST`. Detail endpoints append a UUID
 and support `GET`, `PUT`, `PATCH`, and `DELETE`:
@@ -41,3 +47,23 @@ Authorization: Token <token-key>
 
 All authenticated roles may read configuration. Only administrators may create,
 update, or delete it. See [Authentication and roles](AUTHENTICATION.md).
+
+Workflow endpoints are assignment-scoped. Managers create tasks, media
+relationships, and jobs. Annotators see only objects reachable through their
+jobs, may move their job through allowed states, and may maintain only their own
+result. An unassigned detail lookup returns `404` so it does not reveal whether
+another user's object exists.
+
+Projects define available subjects and a task selects a subset represented by
+`TaskSubject` rows. Creating one parent job from `task` and `assigned_to`
+atomically creates one work item per selected task subject. Each work item has
+its own status and result.
+
+Work-item transitions are forward-only:
+
+```text
+assigned → in_progress → completed → reviewed
+```
+
+Skipping or reversing a state returns `400`. An annotator cannot change or
+delete the parent assignment.

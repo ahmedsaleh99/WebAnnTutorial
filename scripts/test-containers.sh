@@ -57,7 +57,7 @@ assert_response_contains "service-to-service request" "http://localhost:${FRONTE
 assert_http_status "anonymous API access is rejected" "http://localhost:${API_PORT}/api/templates/" "401"
 
 migrations="$("${compose[@]}" exec --no-TTY api python manage.py showmigrations annotations)"
-if [[ "$migrations" != *"[X] 0001_initial"* || "$migrations" != *"[X] 0002_usersecurity"* ]]; then
+if [[ "$migrations" != *"[X] 0001_initial"* || "$migrations" != *"[X] 0002_usersecurity"* || "$migrations" != *"[X] 0003_annotationjob_annotationworkitem_annotationresult_and_more"* ]]; then
   echo "FAIL: the annotations migrations were not applied." >&2
   echo "$migrations" >&2
   exit 1

@@ -379,7 +379,7 @@ and a valid request body does not make an anonymous request authenticated.
 
 ## Part 2 — Write failing security tests (red)
 
-Create `annotations/tests/test_auth.py`. Specify these contracts before adding
+Create `annotations/tests/test_auth_api.py`. Specify these contracts before adding
 auth routes:
 
 1. anonymous configuration reads return 401;

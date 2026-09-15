@@ -132,6 +132,7 @@ Run this before pushing. CI runs the same command on every pull request.
 
 ```bash
 make help         # list supported tasks
+make format       # rewrite backend Python files with Ruff
 make check        # run all current checks
 make validate     # run repository-policy checks only
 make shell-check  # parse shell scripts without executing them
@@ -139,6 +140,9 @@ make backend-check # format-check, lint, validate, and test Django
 make backend-test  # run only Django tests
 make backend-run   # start Django at http://127.0.0.1:8001
 ```
+
+`make format` changes files in place. Review the resulting diff, then run
+`make check` to verify formatting, linting, Django checks, migrations, and tests.
 
 `make backend-run` supplies an explicitly insecure development key. Runtime
 settings come from environment variables; real secrets must never be committed.

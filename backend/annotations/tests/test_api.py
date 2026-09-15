@@ -2,7 +2,16 @@ from django.contrib.auth import get_user_model
 from rest_framework import status
 from rest_framework.test import APITestCase
 
-from .builders import create_dimension, create_project, create_template
+from annotations.models import AnnotationWorkItem
+
+from .builders import (
+    create_dimension,
+    create_job,
+    create_project,
+    create_subject,
+    create_task,
+    create_template,
+)
 
 
 class AuthenticatedAdminApiTestCase(APITestCase):
@@ -226,3 +235,187 @@ class ProjectConfigurationApiTests(AuthenticatedAdminApiTestCase):
         self.assertEqual(
             filtered_response.data["results"][0]["attributes"], {"cohort": "A"}
         )
+
+
+class WorkflowApiTests(APITestCase):
+    def setUp(self):
+        user_model = get_user_model()
+        self.manager = user_model.objects.create_user(
+            username="workflow-manager", password="ManagerPassword9!", is_staff=True
+        )
+        self.annotator = user_model.objects.create_user(
+            username="assigned-annotator", password="AnnotatorPassword9!"
+        )
+        self.other_annotator = user_model.objects.create_user(
+            username="other-annotator", password="AnnotatorPassword9!"
+        )
+
+    def test_manager_creates_task_and_server_sets_creator(self):
+        project = create_project()
+        subject = create_subject(project=project)
+        self.client.force_authenticate(self.manager)
+
+        response = self.client.post(
+            "/api/tasks/",
+            {
+                "project": str(project.pk),
+                "subjects": [str(subject.pk)],
+                "name": "Conversation one",
+                "key": "conversation-one",
+            },
+            format="json",
+        )
+
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+        self.assertEqual(response.data["created_by"], self.manager.pk)
+
+    def test_job_creates_one_work_item_for_each_task_subject(self):
+        project = create_project()
+        first_subject = create_subject(project=project, subject_id="first")
+        second_subject = create_subject(project=project, subject_id="second")
+        task = create_task(
+            project=project,
+            subjects=[first_subject, second_subject],
+            created_by=self.manager,
+        )
+        self.client.force_authenticate(self.manager)
+
+        response = self.client.post(
+            "/api/jobs/",
+            {"task": str(task.pk), "assigned_to": self.annotator.pk},
+            format="json",
+        )
+
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+        self.assertEqual(len(response.data["work_items"]), 2)
+
+    def test_task_rejects_subject_from_another_project(self):
+        project = create_project()
+        foreign_subject = create_subject()
+        self.client.force_authenticate(self.manager)
+
+        response = self.client.post(
+            "/api/tasks/",
+            {
+                "project": str(project.pk),
+                "subjects": [str(foreign_subject.pk)],
+                "name": "Invalid task",
+                "key": "invalid-task",
+            },
+            format="json",
+        )
+
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+        self.assertIn("subjects", response.data)
+
+    def test_annotator_sees_only_assigned_jobs_and_tasks(self):
+        assigned_job = create_job(assigned_to=self.annotator, created_by=self.manager)
+        create_job(assigned_to=self.other_annotator, created_by=self.manager)
+        self.client.force_authenticate(self.annotator)
+
+        jobs_response = self.client.get("/api/jobs/")
+        tasks_response = self.client.get("/api/tasks/")
+
+        self.assertEqual(jobs_response.status_code, status.HTTP_200_OK)
+        self.assertEqual(jobs_response.data["count"], 1)
+        self.assertEqual(jobs_response.data["results"][0]["id"], str(assigned_job.pk))
+        self.assertEqual(tasks_response.data["count"], 1)
+        self.assertEqual(
+            tasks_response.data["results"][0]["id"], str(assigned_job.task_id)
+        )
+
+    def test_unassigned_job_detail_is_hidden_as_not_found(self):
+        job = create_job(assigned_to=self.other_annotator, created_by=self.manager)
+        self.client.force_authenticate(self.annotator)
+
+        response = self.client.get(f"/api/jobs/{job.pk}/")
+
+        self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
+
+    def test_work_item_status_follows_the_state_machine(self):
+        job = create_job(assigned_to=self.annotator, created_by=self.manager)
+        work_item = job.work_items.get()
+        self.client.force_authenticate(self.annotator)
+        work_item_url = f"/api/work-items/{work_item.pk}/"
+
+        invalid_response = self.client.patch(
+            work_item_url,
+            {"status": AnnotationWorkItem.Status.COMPLETED},
+            format="json",
+        )
+        started_response = self.client.patch(
+            work_item_url,
+            {"status": AnnotationWorkItem.Status.IN_PROGRESS},
+            format="json",
+        )
+        completed_response = self.client.patch(
+            work_item_url,
+            {"status": AnnotationWorkItem.Status.COMPLETED},
+            format="json",
+        )
+
+        self.assertEqual(invalid_response.status_code, status.HTTP_400_BAD_REQUEST)
+        self.assertEqual(started_response.status_code, status.HTTP_200_OK)
+        self.assertEqual(completed_response.status_code, status.HTTP_200_OK)
+
+    def test_annotator_cannot_reassign_or_delete_a_job(self):
+        job = create_job(assigned_to=self.annotator, created_by=self.manager)
+        self.client.force_authenticate(self.annotator)
+        job_url = f"/api/jobs/{job.pk}/"
+
+        reassign_response = self.client.patch(
+            job_url, {"assigned_to": self.other_annotator.pk}, format="json"
+        )
+        delete_response = self.client.delete(job_url)
+
+        self.assertEqual(reassign_response.status_code, status.HTTP_403_FORBIDDEN)
+        self.assertEqual(delete_response.status_code, status.HTTP_403_FORBIDDEN)
+
+    def test_only_manager_can_review_completed_work_item(self):
+        job = create_job(
+            assigned_to=self.annotator,
+            created_by=self.manager,
+            work_item_status=AnnotationWorkItem.Status.COMPLETED,
+        )
+        work_item = job.work_items.get()
+        work_item_url = f"/api/work-items/{work_item.pk}/"
+        self.client.force_authenticate(self.annotator)
+
+        annotator_response = self.client.patch(
+            work_item_url,
+            {"status": AnnotationWorkItem.Status.REVIEWED},
+            format="json",
+        )
+        self.client.force_authenticate(self.manager)
+        manager_response = self.client.patch(
+            work_item_url,
+            {"status": AnnotationWorkItem.Status.REVIEWED},
+            format="json",
+        )
+
+        self.assertEqual(annotator_response.status_code, status.HTTP_400_BAD_REQUEST)
+        self.assertEqual(manager_response.status_code, status.HTTP_200_OK)
+
+    def test_annotator_creates_result_only_for_own_work_item(self):
+        own_job = create_job(assigned_to=self.annotator, created_by=self.manager)
+        other_job = create_job(
+            assigned_to=self.other_annotator, created_by=self.manager
+        )
+        self.client.force_authenticate(self.annotator)
+
+        own_response = self.client.post(
+            "/api/results/",
+            {
+                "work_item": str(own_job.work_items.get().pk),
+                "data": {"notes": "done"},
+            },
+            format="json",
+        )
+        other_response = self.client.post(
+            "/api/results/",
+            {"work_item": str(other_job.work_items.get().pk), "data": {}},
+            format="json",
+        )
+
+        self.assertEqual(own_response.status_code, status.HTTP_201_CREATED)
+        self.assertEqual(other_response.status_code, status.HTTP_403_FORBIDDEN)
