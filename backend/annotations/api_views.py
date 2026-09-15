@@ -9,6 +9,7 @@ from .models import (
     ProjectTemplate,
     Subject,
 )
+from .permissions import IsAdminOrReadOnly
 from .serializers import (
     AnnotationDimensionSerializer,
     AnnotationLabelSerializer,
@@ -21,6 +22,7 @@ from .serializers import (
 class ProjectTemplateViewSet(viewsets.ModelViewSet):
     queryset = ProjectTemplate.objects.all()
     serializer_class = ProjectTemplateSerializer
+    permission_classes = [IsAdminOrReadOnly]
 
     def destroy(self, request, *args, **kwargs):
         try:
@@ -34,6 +36,7 @@ class ProjectTemplateViewSet(viewsets.ModelViewSet):
 
 class ProjectViewSet(viewsets.ModelViewSet):
     serializer_class = ProjectSerializer
+    permission_classes = [IsAdminOrReadOnly]
 
     def get_queryset(self):
         queryset = Project.objects.select_related("template")
@@ -44,6 +47,7 @@ class ProjectViewSet(viewsets.ModelViewSet):
 
 class AnnotationDimensionViewSet(viewsets.ModelViewSet):
     serializer_class = AnnotationDimensionSerializer
+    permission_classes = [IsAdminOrReadOnly]
 
     def get_queryset(self):
         queryset = AnnotationDimension.objects.select_related("project")
@@ -54,6 +58,7 @@ class AnnotationDimensionViewSet(viewsets.ModelViewSet):
 
 class AnnotationLabelViewSet(viewsets.ModelViewSet):
     serializer_class = AnnotationLabelSerializer
+    permission_classes = [IsAdminOrReadOnly]
 
     def get_queryset(self):
         queryset = AnnotationLabel.objects.select_related("dimension")
@@ -64,6 +69,7 @@ class AnnotationLabelViewSet(viewsets.ModelViewSet):
 
 class SubjectViewSet(viewsets.ModelViewSet):
     serializer_class = SubjectSerializer
+    permission_classes = [IsAdminOrReadOnly]
 
     def get_queryset(self):
         queryset = Subject.objects.select_related("project")

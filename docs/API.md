@@ -33,6 +33,11 @@ deletion returns `204`, invalid input returns `400`, and an unknown object
 returns `404`. Deleting a template still used by a project returns `409` with a
 `detail` message.
 
-Authentication is deliberately not implemented in this lesson. The API is
-explicitly public for local learning; Lesson 7 replaces `AllowAny` with tested
-authentication and role permissions. Do not deploy the Lesson 6 checkpoint.
+Except for login and media-cookie authorization, API endpoints require:
+
+```text
+Authorization: Token <token-key>
+```
+
+All authenticated roles may read configuration. Only administrators may create,
+update, or delete it. See [Authentication and roles](AUTHENTICATION.md).

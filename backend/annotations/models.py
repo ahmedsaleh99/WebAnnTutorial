@@ -1,7 +1,22 @@
 import uuid
 
+from django.conf import settings
 from django.core.validators import RegexValidator
 from django.db import models
+
+
+class UserSecurity(models.Model):
+    user = models.OneToOneField(
+        settings.AUTH_USER_MODEL,
+        related_name="security_settings",
+        on_delete=models.CASCADE,
+    )
+    must_change_password = models.BooleanField(default=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    def __str__(self) -> str:
+        return f"Security settings for {self.user.get_username()}"
 
 
 class ProjectTemplate(models.Model):
