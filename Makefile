@@ -1,4 +1,4 @@
-.PHONY: backend-check backend-run backend-test bootstrap check container-check container-test hooks shell-check validate verify-python
+.PHONY: backend-check backend-run backend-test bootstrap check container-check container-test format hooks shell-check validate verify-python
 
 PYTHON ?= python3
 BACKEND_PORT ?= 8001
@@ -10,6 +10,7 @@ help:
 	@echo "  bootstrap   Create the tooling environment and install dependencies"
 	@echo "  hooks       Install the Git pre-commit hook"
 	@echo "  check       Run every quality check available in this lesson"
+	@echo "  format      Format backend Python files in place"
 	@echo "  backend-check Format, lint, validate, and test the Django backend"
 	@echo "  backend-test  Run the Django test suite"
 	@echo "  backend-run   Start Django locally on port $(BACKEND_PORT)"
@@ -33,6 +34,9 @@ hooks: bootstrap
 
 check:
 	./scripts/check
+
+format: bootstrap
+	$(VENV)/bin/ruff format backend
 
 backend-check:
 	./scripts/check-backend.sh

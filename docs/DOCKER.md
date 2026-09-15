@@ -128,7 +128,7 @@ or container permission problem.
    resolves `api` and communicates across the internal network.
 10. Calls `/api/templates/` anonymously and requires HTTP 401, proving the built
     API no longer exposes configuration without credentials.
-11. Runs `showmigrations` inside the API and verifies both annotations
+11. Runs `showmigrations` inside the API and verifies all three annotations
     migrations are applied.
 12. Runs the Django suite inside the API container, where Django creates an
     isolated PostgreSQL test database and removes it afterward.

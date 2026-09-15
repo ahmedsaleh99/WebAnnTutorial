@@ -312,6 +312,7 @@ Complete the Makefile with these public targets:
 make help
 make bootstrap
 make hooks
+make format
 make check
 make validate
 make shell-check

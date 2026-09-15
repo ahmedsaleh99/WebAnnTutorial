@@ -235,12 +235,12 @@ snapshots; backend enforcement does not rely on the UI.
 **Concepts:** aggregate boundaries, state machines, scoped queries, uniqueness,
 and safe lifecycle transitions.
 
-**Deliverables:** task, video asset, video view, annotation job, and result
-models; migrations; APIs; and tests.
+**Deliverables:** task, task-subject, video asset, video view, parent annotation
+job, per-subject work item, and result models; migrations; APIs; and tests.
 
 **Acceptance criteria:** each task has valid project-scoped media/subjects;
-duplicate assignments are prevented; annotators see only assigned work; job
-status transitions follow documented rules.
+duplicate assignments are prevented; annotators see only assigned work;
+work-item status transitions follow documented rules.
 
 ### Phase C — Learn the frontend and connect the stack
 
