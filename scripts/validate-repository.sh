@@ -47,10 +47,28 @@ required_files=(
   "docs/DOCKER.md"
   "docs/DATA_MODEL.md"
   "docs/lessons/08-WORKFLOW-MODELS.md"
+  "docs/lessons/09-REACT-FOUNDATIONS.md"
   "docs/TOOLING.md"
   "frontend/.dockerignore"
   "frontend/Dockerfile"
+  "frontend/index.html"
+  "frontend/package-lock.json"
+  "frontend/package.json"
   "frontend/server.mjs"
+  "frontend/src/App.test.tsx"
+  "frontend/src/App.tsx"
+  "frontend/src/ErrorBoundary.test.tsx"
+  "frontend/src/ErrorBoundary.tsx"
+  "frontend/src/main.tsx"
+  "frontend/src/navigation.test.ts"
+  "frontend/src/navigation.ts"
+  "frontend/src/styles.css"
+  "frontend/src/test/setup.ts"
+  "frontend/src/vite-env.d.ts"
+  "frontend/tsconfig.app.json"
+  "frontend/tsconfig.json"
+  "frontend/tsconfig.node.json"
+  "frontend/vite.config.ts"
   "pyproject.toml"
   "requirements-dev.txt"
 )
@@ -73,6 +91,8 @@ for executable_file in \
   scripts/check \
   scripts/check-backend.sh \
   scripts/check-compose.sh \
+  scripts/check-frontend.sh \
+  scripts/check-node-runtime.sh \
   scripts/check-python-runtime.sh \
   scripts/check-shell.sh \
   scripts/test-containers.sh \

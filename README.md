@@ -29,6 +29,7 @@ pass.
 - [Lesson 6: REST APIs and validation](docs/lessons/06-DRF-API.md)
 - [Lesson 7: authentication, roles, and permissions](docs/lessons/07-AUTH-RBAC.md)
 - [Lesson 8: workflow models and assignment boundaries](docs/lessons/08-WORKFLOW-MODELS.md)
+- [Lesson 9: React, TypeScript, Vite, and Vitest](docs/lessons/09-REACT-FOUNDATIONS.md)
 - [Developer tooling reference](docs/TOOLING.md)
 - [Docker development reference](docs/DOCKER.md)
 - [Core data model](docs/DATA_MODEL.md)

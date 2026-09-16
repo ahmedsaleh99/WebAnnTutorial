@@ -1,4 +1,4 @@
-.PHONY: backend-check backend-run backend-test bootstrap check container-check container-test format hooks shell-check validate verify-python
+.PHONY: backend-check backend-run backend-test bootstrap check container-check container-test format frontend-bootstrap frontend-check frontend-test hooks shell-check validate verify-node verify-python
 
 PYTHON ?= python3
 BACKEND_PORT ?= 8001
@@ -11,6 +11,9 @@ help:
 	@echo "  hooks       Install the Git pre-commit hook"
 	@echo "  check       Run every quality check available in this lesson"
 	@echo "  format      Format backend Python files in place"
+	@echo "  frontend-bootstrap Install locked frontend dependencies"
+	@echo "  frontend-check Test, type-check, and build the frontend"
+	@echo "  frontend-test Run the Vitest suite"
 	@echo "  backend-check Format, lint, validate, and test the Django backend"
 	@echo "  backend-test  Run the Django test suite"
 	@echo "  backend-run   Start Django locally on port $(BACKEND_PORT)"
@@ -37,6 +40,19 @@ check:
 
 format: bootstrap
 	$(VENV)/bin/ruff format backend
+
+frontend-bootstrap:
+	@./scripts/check-node-runtime.sh node
+	npm --prefix frontend ci
+
+frontend-check:
+	./scripts/check-frontend.sh
+
+frontend-test:
+	npm --prefix frontend test
+
+verify-node:
+	@./scripts/check-node-runtime.sh node
 
 backend-check:
 	./scripts/check-backend.sh

@@ -25,8 +25,7 @@ Node.js 22
 ```
 
 Lesson 2 uses Python to install pre-commit. Lesson 4 adds Django and Ruff to the
-same environment. Node.js is declared now but is not used until the React
-lessons.
+same environment. Lesson 9 uses Node.js for React tooling.
 
 ## Setup sequence
 
@@ -122,6 +121,13 @@ The hook is local Git metadata; teammates install it in their own clones.
 
 ### 5. Run the quality gate
 
+From Lesson 9 onward, first verify and install frontend dependencies:
+
+```bash
+node --version  # must report v22...
+make frontend-bootstrap
+```
+
 ```bash
 make check
 ```
@@ -139,6 +145,9 @@ make shell-check  # parse shell scripts without executing them
 make backend-check # format-check, lint, validate, and test Django
 make backend-test  # run only Django tests
 make backend-run   # start Django at http://127.0.0.1:8001
+make frontend-bootstrap # install the package-lock with npm ci
+make frontend-test # run Vitest
+make frontend-check # test, type-check, and build React
 ```
 
 `make format` changes files in place. Review the resulting diff, then run
@@ -203,3 +212,9 @@ Miniforge installation instructions for the installation-specific path.
 
 Run `make check`, correct the reported problem, stage the correction, and commit
 again. A hook provides early feedback; CI remains the shared enforcement gate.
+
+### `Node.js 22 is required`
+
+Activate or install Node.js 22, then verify `node --version`. With `nvm`, run
+`nvm install 22` followed by `nvm use 22`. Run `make frontend-bootstrap` again
+after switching Node versions.
