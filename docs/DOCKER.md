@@ -41,7 +41,7 @@ healthy, then its entrypoint applies committed migrations before Django starts.
 ## Apply source changes
 
 The images copy source during `docker build`. Rebuild and replace services
-after changing Django backend code or `frontend/server.mjs`:
+after changing backend or frontend source:
 
 ```bash
 docker compose up --build --detach --wait
@@ -88,6 +88,8 @@ For this repository, `make container-test` proves that:
 ```text
 Dockerfiles build
     ↓
+React passes TypeScript checks and builds static assets
+    ↓
 PostgreSQL becomes healthy
     ↓
 Django connects and applies migrations
@@ -120,7 +122,9 @@ or container permission problem.
 4. Registers an `EXIT` trap before starting anything. Success, failure, or an
    interruption therefore triggers cleanup.
 5. Runs `docker compose config --quiet` to reject an invalid Compose model.
-6. Builds the real backend and frontend images.
+6. Builds the real backend and frontend images. The frontend build runs locked
+   npm installation, TypeScript, and Vite before copying `dist/` into its
+   runtime stage.
 7. Starts services with `--wait`; Compose waits for declared health checks
    rather than relying on a fixed sleep.
 8. Calls the API and frontend health endpoints from the host.
