@@ -36,18 +36,18 @@ describe("AuthGate", () => {
     expect(screen.getByRole("button", { name: "Signing in…" })).toBeDisabled();
     expect(fetchMock).toHaveBeenCalledOnce();
     finishRequest?.(response(200, { token: "secret", user }));
-    expect(await screen.findByRole("heading", { name: "Dashboard" })).toBeInTheDocument();
+    expect(await screen.findByRole("heading", { name: "My jobs" })).toBeInTheDocument();
   });
 
-  it("starts at sign in and shows the dashboard after a valid login", async () => {
+  it("starts at sign in and shows Jobs after a valid login", async () => {
     const fetchMock = vi.fn().mockResolvedValue(response(200, { token: "secret", user }));
     vi.stubGlobal("fetch", fetchMock);
     render(<AuthGate />);
 
     await enterCredentials();
 
-    expect(await screen.findByRole("heading", { name: "Dashboard" })).toBeInTheDocument();
-    expect(screen.getByRole("button", { name: "User: amina" })).toBeInTheDocument();
+    expect(await screen.findByRole("heading", { name: "My jobs" })).toBeInTheDocument();
+    expect(screen.getByText("amina")).toBeInTheDocument();
   });
 
   it("shows validation errors and keeps the sign-in form available", async () => {
@@ -78,23 +78,25 @@ describe("AuthGate", () => {
     render(<AuthGate />);
     const actor = await enterCredentials();
 
-    expect(await screen.findByRole("heading", { name: "Change your password" })).toBeInTheDocument();
-    expect(screen.queryByRole("heading", { name: "Dashboard" })).not.toBeInTheDocument();
+    expect(await screen.findByRole("heading", { name: "Change password" })).toBeInTheDocument();
+    expect(screen.getByRole("heading", { name: "Secure your account." })).toBeInTheDocument();
+    expect(screen.queryByLabelText("Username")).not.toBeInTheDocument();
+    expect(screen.queryByRole("heading", { name: "My jobs" })).not.toBeInTheDocument();
     expect(screen.getByLabelText("Current password")).toHaveValue("");
     expect(screen.getByLabelText("New password")).toHaveValue("");
     expect(screen.getByLabelText("Confirm new password")).toHaveValue("");
     await actor.type(screen.getByLabelText("Current password"), "Password9!");
     await actor.type(screen.getByLabelText("New password"), "NewPassword9!");
     await actor.type(screen.getByLabelText("Confirm new password"), "different");
-    await actor.click(screen.getByRole("button", { name: "Change password" }));
+    await actor.click(screen.getByRole("button", { name: "Change password and continue" }));
     expect(await screen.findByRole("alert")).toHaveTextContent("do not match");
 
     await actor.clear(screen.getByLabelText("Confirm new password"));
     await actor.type(screen.getByLabelText("Confirm new password"), "NewPassword9!");
-    await actor.click(screen.getByRole("button", { name: "Change password" }));
+    await actor.click(screen.getByRole("button", { name: "Change password and continue" }));
 
-    expect(await screen.findByRole("heading", { name: "Dashboard" })).toBeInTheDocument();
-    expect(fetchMock).toHaveBeenLastCalledWith("/api/auth/password-change/", expect.objectContaining({
+    expect(await screen.findByRole("heading", { name: "My jobs" })).toBeInTheDocument();
+    expect(fetchMock).toHaveBeenCalledWith("/api/auth/password-change/", expect.objectContaining({
       headers: expect.objectContaining({ Authorization: "Token old-token" }),
     }));
   });
@@ -105,29 +107,31 @@ describe("AuthGate", () => {
       .mockResolvedValueOnce(response(401, { detail: "Invalid token." })));
     render(<AuthGate />);
     const actor = await enterCredentials();
-    await screen.findByRole("heading", { name: "Change your password" });
+    await screen.findByRole("heading", { name: "Change password" });
 
     await actor.type(screen.getByLabelText("Current password"), "Password9!");
     await actor.type(screen.getByLabelText("New password"), "NewPassword9!");
     await actor.type(screen.getByLabelText("Confirm new password"), "NewPassword9!");
-    await actor.click(screen.getByRole("button", { name: "Change password" }));
+    await actor.click(screen.getByRole("button", { name: "Change password and continue" }));
 
-    expect(await screen.findByRole("heading", { name: "Sign in to WebAnn" })).toBeInTheDocument();
+    expect(await screen.findByRole("heading", { name: "Sign in" })).toBeInTheDocument();
     expect(screen.getByRole("alert")).toHaveTextContent("Invalid token.");
   });
 
   it("revokes the token and returns to sign in on logout", async () => {
-    const fetchMock = vi.fn()
-      .mockResolvedValueOnce(response(200, { token: "secret", user }))
-      .mockResolvedValueOnce(response(204, null));
+    const fetchMock = vi.fn((path: string) => Promise.resolve(
+      path === "/api/auth/login/" ? response(200, { token: "secret", user })
+        : path === "/api/auth/logout/" ? response(204, null)
+          : response(200, { count: 0, next: null, previous: null, results: [] }),
+    ));
     vi.stubGlobal("fetch", fetchMock);
     render(<AuthGate />);
     const actor = await enterCredentials();
-    await screen.findByRole("heading", { name: "Dashboard" });
+    await screen.findByRole("heading", { name: "My jobs" });
 
-    await actor.click(screen.getByRole("button", { name: "Log out" }));
+    await actor.click(screen.getByRole("button", { name: "Sign out" }));
 
-    expect(await screen.findByRole("heading", { name: "Sign in to WebAnn" })).toBeInTheDocument();
+    expect(await screen.findByRole("heading", { name: "Sign in" })).toBeInTheDocument();
     expect(fetchMock).toHaveBeenLastCalledWith("/api/auth/logout/", expect.objectContaining({
       headers: expect.objectContaining({ Authorization: "Token secret" }),
     }));

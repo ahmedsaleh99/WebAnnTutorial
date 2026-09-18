@@ -18,20 +18,37 @@ from .models import (
 
 
 class ProjectTemplateSerializer(serializers.ModelSerializer):
+    created_by_username = serializers.CharField(
+        source="created_by.username", read_only=True, allow_null=True
+    )
+
+    def validate_configuration(self, value):
+        if not isinstance(value, dict):
+            raise serializers.ValidationError("Configuration must be a JSON object.")
+        return value
+
     class Meta:
         model = ProjectTemplate
         fields = [
             "id",
             "name",
             "key",
+            "project_type",
             "description",
             "configuration",
             "version",
             "is_active",
+            "created_by_username",
             "created_at",
             "updated_at",
         ]
-        read_only_fields = ["id", "created_at", "updated_at"]
+        read_only_fields = [
+            "id",
+            "version",
+            "created_by_username",
+            "created_at",
+            "updated_at",
+        ]
 
 
 class ProjectSerializer(serializers.ModelSerializer):

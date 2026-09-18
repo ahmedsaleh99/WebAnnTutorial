@@ -36,9 +36,15 @@ from .serializers import (
 
 
 class ProjectTemplateViewSet(viewsets.ModelViewSet):
-    queryset = ProjectTemplate.objects.all()
+    queryset = ProjectTemplate.objects.select_related("created_by")
     serializer_class = ProjectTemplateSerializer
     permission_classes = [IsAdminOrReadOnly]
+
+    def perform_create(self, serializer):
+        serializer.save(created_by=self.request.user)
+
+    def perform_update(self, serializer):
+        serializer.save(version=serializer.instance.version + 1)
 
     def destroy(self, request, *args, **kwargs):
         try:

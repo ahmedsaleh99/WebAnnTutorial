@@ -39,6 +39,11 @@ deletion returns `204`, invalid input returns `400`, and an unknown object
 returns `404`. Deleting a template still used by a project returns `409` with a
 `detail` message.
 
+Project templates include `project_type` (`dipser`, `cvip2020`, or `cvip2026`),
+`created_by_username`, and `version`. The server sets the creator on create and
+increments the version on update. Older templates may have a null creator.
+`configuration` must be a JSON object.
+
 Except for login and media-cookie authorization, API endpoints require:
 
 ```text

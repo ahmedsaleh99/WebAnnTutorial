@@ -5,18 +5,21 @@ export interface NavigationItem {
   label: string;
 }
 
-const commonItems: NavigationItem[] = [
-  { href: "#dashboard", label: "Dashboard" },
-  { href: "#assigned-work", label: "Assigned work" },
-];
+const commonItems: NavigationItem[] = [{ href: "#jobs", label: "Jobs" }];
 
 export function navigationFor(role: UserRole): NavigationItem[] {
   const items = [...commonItems];
   if (role === "manager" || role === "admin") {
-    items.push({ href: "#workflow", label: "Workflow" });
+    items.push({ href: "#tasks", label: "Tasks" });
+    items.push({ href: "#videos", label: "Videos" });
+    items.push({ href: "#projects", label: "Projects" });
   }
   if (role === "admin") {
-    items.push({ href: "#configuration", label: "Configuration" });
+    items.push({ href: "#templates", label: "Project templates" });
+    items.push({ href: "#users", label: "Users" });
+    items.push({ href: "#analytics", label: "Analytics" });
+    items.push({ href: "#agreement", label: "Agreement" });
+    items.push({ href: "#logs", label: "Logs" });
   }
   return items;
 }

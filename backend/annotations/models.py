@@ -21,13 +21,28 @@ class UserSecurity(models.Model):
 
 
 class ProjectTemplate(models.Model):
+    class Type(models.TextChoices):
+        DIPSER = "dipser", "DIPSER"
+        CVIP_2020 = "cvip2020", "CVIP2020"
+        CVIP_2026 = "cvip2026", "CVIP2026"
+
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     name = models.CharField(max_length=200)
     key = models.SlugField(max_length=100)
+    project_type = models.CharField(
+        max_length=40, choices=Type.choices, default=Type.DIPSER
+    )
     description = models.TextField(blank=True)
     configuration = models.JSONField(default=dict, blank=True)
     version = models.PositiveIntegerField(default=1)
     is_active = models.BooleanField(default=True)
+    created_by = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        related_name="project_templates",
+        on_delete=models.PROTECT,
+        null=True,
+        blank=True,
+    )
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
