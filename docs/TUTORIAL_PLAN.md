@@ -17,6 +17,15 @@ video streaming, and annotation analytics.
 
 This is a from-scratch learning path, not a line-by-line copy of the finished
 repository. Each concept is introduced before the application depends on it.
+As frontend features appear, their navigation, page structure, and user
+journeys should match EngAnnWeb's corresponding screens. After the shared login
+and app header, each frontend lesson builds or extends **one page only**. A
+page lesson includes that page's loading, empty, success, error, and permission
+states, plus any small API changes it needs. Shared backend or deployment
+lessons may support several future pages, but do not introduce several page UIs
+at once. Unbuilt destinations remain clearly labeled placeholders. A smaller
+checkpoint may omit later features, but should not invent a competing product
+layout that students must eventually undo.
 
 WebAnnTutorial is the course and reference repository. Every student creates a
 separate empty GitHub repository and implements the lessons there. The student's
@@ -82,6 +91,8 @@ checkpoint without exposing work from later lessons.
 - No credentials, generated dependencies, build output, database data, or
   uploaded media are committed.
 - User-facing behavior and architectural decisions are documented.
+- A frontend lesson builds or extends one page; unrelated page UI waits for its
+  own lesson and pull request.
 - The pull request explains the red-green-refactor evidence and includes manual
   verification steps where automation is insufficient.
 - In instructor-led use, at least one independent review is completed before
@@ -89,6 +100,23 @@ checkpoint without exposing work from later lessons.
   self-review when no separate reviewer is available.
 
 ## 4. Course roadmap
+
+The frontend page sequence is explicit. The Annotation workspace is one page
+expanded across several lessons; each of those lessons changes that page only.
+
+| Page | Lesson checkpoint |
+| --- | --- |
+| Sign-in and password change | 10 |
+| Project templates | 11 |
+| Projects | 12; portability controls in 27 |
+| Tasks | 13; portability controls in 28 |
+| Users | 14 |
+| Jobs / My jobs | 15; portability controls in 29 |
+| Videos | 19 |
+| Annotation workspace | 21–25 |
+| Logs | 31 |
+| Analytics | 33 |
+| Agreement | 34 |
 
 ### Phase A — Delivery foundations
 
@@ -276,27 +304,92 @@ role-aware navigation, and tests with mocked network boundaries.
 failure paths are tested; role-hidden controls match backend policy but do not
 replace it; local proxying works through Compose.
 
-#### Lesson 11 — Project administration vertical slice
+#### Lesson 11 — Project templates page
 
 **Branch:** `lesson/11-project-admin`
 
-**Goal:** Deliver the first full-stack feature through the same TDD workflow.
+**Goal:** Build the Project templates page beneath the established login and
+app header.
 
 **Concepts:** forms, controlled inputs, reusable components, optimistic versus
 pessimistic updates, API integration tests, and accessible feedback.
 
-**Deliverables:** template/project screens and dimension, label, subject, and
-task management flows.
+**Deliverables:** template search, status/type filters, cards, create/edit/delete
+dialog, and the API fields those controls need. Projects, Tasks, and Jobs
+remain later workflows.
 
-**Acceptance criteria:** an administrator can configure a project end to end;
-invalid input is explained without losing form state; manager/annotator access
-is constrained; backend and frontend tests cover the critical journey.
+**Acceptance criteria:** an administrator can create, filter, edit, and delete
+templates; edits increment version; invalid input is explained without losing
+form state; backend and frontend tests cover the template journey.
+
+#### Lesson 12 — Projects page
+
+**Branch:** `lesson/12-projects-page`
+
+**Goal:** Match the EngAnnWeb Projects page and its project settings dialog.
+
+**Concepts:** dependent data, scoped forms, tabs, and read-only role states.
+
+**Deliverables:** project cards, search/status/template filters, project creation,
+and General, Dimensions & labels, and Subjects settings sections. Keep all
+project setup inside this page; do not build the Tasks page here.
+
+**Acceptance criteria:** an administrator can create and configure a project
+from a template; managers can inspect setup without write controls; invalid
+relationships are rejected by the API and explained in the dialog.
+
+#### Lesson 13 — Tasks page
+
+**Branch:** `lesson/13-tasks-page`
+
+**Goal:** Match the task list and task editor for configured projects.
+
+**Concepts:** project-scoped choices, task state, and list filtering.
+
+**Deliverables:** task cards, search/project/status filters, task creation and
+editing, and subject selection. Media synchronization actions can remain
+placeholders until their backend lessons.
+
+**Acceptance criteria:** a manager can create and find a task for one project;
+subjects from other projects cannot be selected or submitted; annotators do
+not receive task-management controls.
+
+#### Lesson 14 — Users page
+
+**Branch:** `lesson/14-users-page`
+
+**Goal:** Build the administrator's user-management page before job assignment.
+
+**Concepts:** account provisioning, role changes, and password lifecycle.
+
+**Deliverables:** user list and filters, create/edit controls, role display, and
+first-login password-change handling using the existing auth policy.
+
+**Acceptance criteria:** an administrator can provision an annotator and
+verify its role and password-change state; managers and annotators cannot
+modify users through either the page or API.
+
+#### Lesson 15 — Jobs page
+
+**Branch:** `lesson/15-jobs-page`
+
+**Goal:** Match the staff and annotator assignment views.
+
+**Concepts:** assignment boundaries, role-scoped lists, and work-item status.
+
+**Deliverables:** job cards, search/task/status/annotator filters, assignment
+creation for managers, and an annotator's My jobs view. Opening the annotation
+workspace remains a later lesson.
+
+**Acceptance criteria:** managers can assign eligible tasks to annotators;
+annotators see only their own jobs; duplicate or invalid assignments return
+useful errors without inventing a finished annotation workspace.
 
 ### Phase D — Media and asynchronous systems
 
-#### Lesson 12 — Celery, Redis, and reliable background jobs
+#### Lesson 16 — Celery, Redis, and reliable background jobs
 
-**Branch:** `lesson/12-celery-redis`
+**Branch:** `lesson/16-celery-redis`
 
 **Goal:** Move slow media work outside HTTP requests.
 
@@ -310,9 +403,9 @@ task, media-processing state transitions, and worker tests.
 does not corrupt state; failures are visible and retry policy is bounded; the
 API remains usable when a worker is temporarily unavailable.
 
-#### Lesson 13 — FFmpeg/ffprobe media pipeline
+#### Lesson 17 — FFmpeg/ffprobe media pipeline
 
-**Branch:** `lesson/13-media-pipeline`
+**Branch:** `lesson/17-media-pipeline`
 
 **Goal:** Safely inspect video and prepare browser-compatible media.
 
@@ -326,9 +419,9 @@ video status/log API, and media-pipeline tests.
 conversion handles boundaries; commands do not interpolate untrusted shell
 text; failed processing leaves an actionable error and no false `ready` state.
 
-#### Lesson 14 — Secure uploads, remote sources, and MinIO
+#### Lesson 18 — Secure uploads, remote sources, and MinIO
 
-**Branch:** `lesson/14-media-ingestion`
+**Branch:** `lesson/18-media-ingestion`
 
 **Goal:** Ingest reusable project media from controlled sources.
 
@@ -342,9 +435,24 @@ side-effect-free batch preview, explicit apply action, and tests with fakes.
 rejected; preview writes nothing; apply is idempotent; credentials and signed
 query strings do not enter filenames or logs.
 
-#### Lesson 15 — Nginx, authenticated range requests, and Gunicorn
+#### Lesson 19 — Videos page
 
-**Branch:** `lesson/15-production-serving`
+**Branch:** `lesson/19-videos-page`
+
+**Goal:** Match the media list and ingestion controls on the Videos page.
+
+**Concepts:** upload progress, processing states, preview/apply, and retry UX.
+
+**Deliverables:** searchable video cards, status feedback, upload and remote
+source controls, and MinIO preview/apply actions using Lessons 16–18 APIs.
+
+**Acceptance criteria:** a manager can ingest and find media without leaving
+the Videos page; failed processing is visible and retryable; preview performs
+no writes; later annotation controls are not added to this page.
+
+#### Lesson 20 — Nginx, authenticated range requests, and Gunicorn
+
+**Branch:** `lesson/20-production-serving`
 
 **Goal:** Serve the SPA, API, and large media efficiently in a production-like
 stack.
@@ -361,11 +469,12 @@ routes work behind one origin; media is mounted read-only in Nginx.
 
 ### Phase E — The annotation engine
 
-#### Lesson 16 — Frame-accurate playback as tested domain logic
+#### Lesson 21 — Frame-accurate playback as tested domain logic
 
-**Branch:** `lesson/16-frame-playback`
+**Branch:** `lesson/21-frame-playback`
 
-**Goal:** Make frame number, not floating-point video time, the source of truth.
+**Goal:** Begin the Annotation workspace page with frame-accurate playback.
+Frame number, not floating-point video time, is the source of truth.
 
 **Concepts:** pure domain functions, browser media events, rounding/clamping,
 adapters, deterministic tests, and keyboard controls.
@@ -377,11 +486,12 @@ controls, shortcuts, and unit tests.
 stale media events cannot overwrite a newer seek; shortcuts do not fire while
 editing text; manual verification works on generated fixtures.
 
-#### Lesson 17 — Multi-camera synchronization
+#### Lesson 22 — Multi-camera synchronization
 
-**Branch:** `lesson/17-synchronization`
+**Branch:** `lesson/22-synchronization`
 
-**Goal:** Coordinate a main view and subject/back views on one committed frame.
+**Goal:** Extend the Annotation workspace page with synchronized camera views
+on one committed frame.
 
 **Concepts:** checkpoint interpolation, timestamp mapping, coordinator state
 machines, readiness barriers, seek generations, buffering, and bounded recovery.
@@ -393,11 +503,11 @@ synchronization workspace, coordinator, and scenario tests.
 cannot block playback; late seek events are ignored; buffering pauses all active
 views and resumes only when the readiness barrier opens.
 
-#### Lesson 18 — Timeline segments with red-green-refactor
+#### Lesson 23 — Timeline segments with red-green-refactor
 
-**Branch:** `lesson/18-timeline-annotations`
+**Branch:** `lesson/23-timeline-annotations`
 
-**Goal:** Create continuous, frame-accurate annotation tracks.
+**Goal:** Add continuous, frame-accurate tracks to the Annotation workspace page.
 
 **Concepts:** temporal invariants, transaction boundaries, client/server
 validation, command modeling, undo/redo, autosave, and race conditions.
@@ -409,11 +519,11 @@ boundary editing, notes, history, autosave, and tests.
 invalid edits cannot silently corrupt a track; undo/redo preserves explicit
 boundaries and notes; completed jobs are read-only.
 
-#### Lesson 19 — Bounding-box tracks and keyframes
+#### Lesson 24 — Bounding-box tracks and keyframes
 
-**Branch:** `lesson/19-bounding-boxes`
+**Branch:** `lesson/24-bounding-boxes`
 
-**Goal:** Annotate subject position over time.
+**Goal:** Add subject-position tracks to the Annotation workspace page.
 
 **Concepts:** normalized coordinates, pointer geometry, interpolation,
 keyframes, visibility states, overlays, and zoom transforms.
@@ -425,11 +535,11 @@ interpolation policies, synchronization-box propagation, and tests.
 dragging works; hidden states and interpolation are deterministic; a sync box is
 copied/updated for applicable annotation jobs.
 
-#### Lesson 20 — Resilience, caching, and annotation UX
+#### Lesson 25 — Resilience, caching, and annotation UX
 
-**Branch:** `lesson/20-resilient-workspace`
+**Branch:** `lesson/25-resilient-workspace`
 
-**Goal:** Make long annotation sessions safe and efficient.
+**Goal:** Make long sessions on the Annotation workspace page safe and efficient.
 
 **Concepts:** local persistence, service workers/browser storage, cache
 validation, quota policy, recovery, error notifications, accessibility, and
@@ -444,24 +554,59 @@ work; errors are visible, dismissible, and do not expose secrets.
 
 ### Phase F — Operations, security, and insight
 
-#### Lesson 21 — Exports, imports, and durable data contracts
+#### Lesson 26 — Exports, imports, and durable data contracts
 
-**Branch:** `lesson/21-data-portability`
+**Branch:** `lesson/26-data-portability`
 
 **Goal:** Produce self-describing research data and safely restore annotations.
 
 **Concepts:** schema versioning, serialization, validation, authorization,
 streaming downloads, compatibility, and round-trip tests.
 
-**Deliverables:** project/task/job JSON exports and validated annotation import.
+**Deliverables:** backend project/task/job JSON exports and validated annotation
+import. Page controls are added in separate Projects, Tasks, and Jobs lessons.
 
 **Acceptance criteria:** exports contain configuration and annotation context;
 an export/import round trip preserves supported data; malformed or unauthorized
 imports make no partial changes; schema/version is documented.
 
-#### Lesson 22 — Security hardening and auditability
+#### Lesson 27 — Projects page portability controls
 
-**Branch:** `lesson/22-security-audit`
+**Branch:** `lesson/27-projects-portability`
+
+**Goal:** Add project export/import actions to the existing Projects page.
+
+**Deliverables:** project-scoped controls, confirmation, progress and error
+states, and tests for protected or malformed requests.
+
+**Acceptance criteria:** project actions use Lesson 26 contracts and do not
+change the Tasks or Jobs pages.
+
+#### Lesson 28 — Tasks page portability controls
+
+**Branch:** `lesson/28-tasks-portability`
+
+**Goal:** Add task export/import actions to the existing Tasks page.
+
+**Deliverables:** task-scoped controls, validation feedback, and page tests.
+
+**Acceptance criteria:** task actions use Lesson 26 contracts and leave the
+Projects and Jobs pages unchanged.
+
+#### Lesson 29 — Jobs page portability controls
+
+**Branch:** `lesson/29-jobs-portability`
+
+**Goal:** Add assignment export/import actions to the existing Jobs page.
+
+**Deliverables:** job-scoped controls, protected import feedback, and tests.
+
+**Acceptance criteria:** a user can only export or import permitted jobs;
+invalid imports leave existing annotations intact.
+
+#### Lesson 30 — Security hardening and auditability
+
+**Branch:** `lesson/30-security-audit`
 
 **Goal:** Add layered, testable protections for an internet-facing service.
 
@@ -470,15 +615,27 @@ limits, content-free audit events, secure headers/cookies, dependency scanning,
 and secret management.
 
 **Deliverables:** threat model, escalating login throttle, audit middleware and
-admin event view, Nginx burst protection, and security CI checks.
+admin event API, Nginx burst protection, and security CI checks. The Logs page
+is a separate lesson.
 
 **Acceptance criteria:** throttling works across API workers without revealing
 account existence; mutation/auth/error events exclude bodies and credentials;
 only administrators can read audit events; dependency and secret scans gate PRs.
 
-#### Lesson 23 — Metrics and inter-annotator agreement
+#### Lesson 31 — Logs page
 
-**Branch:** `lesson/23-analytics`
+**Branch:** `lesson/31-logs-page`
+
+**Goal:** Build the administrator's audit-log page from Lesson 30's event API.
+
+**Deliverables:** event list, filters, pagination, and content-free detail view.
+
+**Acceptance criteria:** administrators can investigate activity without
+exposing request bodies or credentials; other roles cannot read the page or API.
+
+#### Lesson 32 — Metrics and agreement APIs
+
+**Branch:** `lesson/32-metrics-agreement-api`
 
 **Goal:** Derive useful, privacy-conscious quality and efficiency measures.
 
@@ -486,16 +643,40 @@ only administrators can read audit events; dependency and secret scans gate PRs.
 Krippendorff's alpha with label distances, gamma agreement, sampling, and
 statistical edge cases.
 
-**Deliverables:** work/operation/segment metrics, admin dashboards, agreement
-API/UI, and tests based on hand-calculated examples.
+**Deliverables:** work/operation/segment metrics and agreement APIs, with tests
+based on hand-calculated examples. Their pages come next, one at a time.
 
 **Acceptance criteria:** known fixtures produce expected statistics; incomplete
 overlap and empty data are handled explicitly; annotators cannot access admin
 analytics; collected work metrics avoid annotation content.
 
-#### Lesson 24 — Production CD, observability, and capstone release
+#### Lesson 33 — Analytics page
 
-**Branch:** `lesson/24-production-release`
+**Branch:** `lesson/33-analytics-page`
+
+**Goal:** Present Lesson 32's work and quality metrics on the Analytics page.
+
+**Deliverables:** filters, summaries, charts, loading and empty states, and
+tests against known metric responses.
+
+**Acceptance criteria:** administrators can inspect useful metrics without
+seeing annotation content; this lesson does not build the Agreement page.
+
+#### Lesson 34 — Agreement page
+
+**Branch:** `lesson/34-agreement-page`
+
+**Goal:** Present inter-annotator agreement on its own page.
+
+**Deliverables:** comparison controls, scores, method explanations, and
+insufficient-data states using Lesson 32's agreement API.
+
+**Acceptance criteria:** known comparisons match backend fixtures; incomplete
+overlap is explained; no Analytics page UI is changed in this lesson.
+
+#### Lesson 35 — Production CD, observability, and capstone release
+
+**Branch:** `lesson/35-production-release`
 
 **Goal:** Promote a reviewed commit safely from CI to a production environment.
 
@@ -538,8 +719,9 @@ Every lesson pull request should contain:
 ```
 
 Keep a lesson focused. If its pull request becomes too large to review, split
-it into numbered parts such as `lesson/18a-timeline-domain` and
-`lesson/18b-timeline-ui`; each part must still leave `main` working.
+it into numbered parts such as `lesson/23a-timeline-domain` and
+`lesson/23b-timeline-ui`; each part must still leave `main` working. A split
+must not combine multiple page UIs to save lesson numbers.
 
 ## 6. Teaching and review strategy
 
@@ -576,5 +758,6 @@ test-videos/               generated, redistributable media fixtures
 docker-compose.yml         local integrated stack
 ```
 
-The next step is to write and implement **Lesson 1 — Repository workflow and
-CI/CD foundation** as the first student pull request.
+The next new checkpoint after the current Project templates lesson is
+**Lesson 12 — Projects page**. Lessons 1–11 remain the foundation for students
+starting from an empty repository.

@@ -39,14 +39,18 @@ class TemplateApiTests(AuthenticatedAdminApiTestCase):
                 "id",
                 "name",
                 "key",
+                "project_type",
                 "description",
                 "configuration",
                 "version",
                 "is_active",
+                "created_by_username",
                 "created_at",
                 "updated_at",
             },
         )
+        self.assertEqual(create_response.data["project_type"], "dipser")
+        self.assertEqual(create_response.data["created_by_username"], "api-admin")
 
         list_response = self.client.get("/api/templates/")
 
@@ -67,6 +71,43 @@ class TemplateApiTests(AuthenticatedAdminApiTestCase):
 
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
         self.assertIn("non_field_errors", response.data)
+
+    def test_template_type_and_update_version_match_editor(self):
+        created = self.client.post(
+            "/api/templates/",
+            {"name": "Clips", "key": "clips", "project_type": "cvip2026"},
+            format="json",
+        )
+        self.assertEqual(created.status_code, status.HTTP_201_CREATED)
+        self.assertEqual(created.data["project_type"], "cvip2026")
+        changed = self.client.patch(
+            f"/api/templates/{created.data['id']}/",
+            {"description": "Updated"},
+            format="json",
+        )
+        self.assertEqual(changed.status_code, status.HTTP_200_OK)
+        self.assertEqual(changed.data["version"], 2)
+        invalid = self.client.post(
+            "/api/templates/",
+            {"name": "Bad", "key": "bad", "project_type": "unknown"},
+            format="json",
+        )
+        self.assertEqual(invalid.status_code, status.HTTP_400_BAD_REQUEST)
+        bad_configuration = self.client.post(
+            "/api/templates/",
+            {"name": "Bad", "key": "bad", "configuration": []},
+            format="json",
+        )
+        self.assertEqual(bad_configuration.status_code, status.HTTP_400_BAD_REQUEST)
+        self.assertIn("configuration", bad_configuration.data)
+
+    def test_legacy_template_without_creator_is_readable(self):
+        template = create_template()
+
+        response = self.client.get(f"/api/templates/{template.pk}/")
+
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertIsNone(response.data["created_by_username"])
 
     def test_template_in_use_returns_conflict_on_delete(self):
         project = create_project()

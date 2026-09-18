@@ -31,6 +31,7 @@ pass.
 - [Lesson 8: workflow models and assignment boundaries](docs/lessons/08-WORKFLOW-MODELS.md)
 - [Lesson 9: React, TypeScript, Vite, and Vitest](docs/lessons/09-REACT-FOUNDATIONS.md)
 - [Lesson 10: typed API client and authentication UI](docs/lessons/10-FRONTEND-API-AUTH.md)
+- [Lesson 11: project templates page](docs/lessons/11-PROJECT-ADMIN.md)
 - [Developer tooling reference](docs/TOOLING.md)
 - [Docker development reference](docs/DOCKER.md)
 - [Core data model](docs/DATA_MODEL.md)

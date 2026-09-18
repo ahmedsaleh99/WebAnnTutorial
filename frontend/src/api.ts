@@ -59,7 +59,7 @@ function errorMessage(value: unknown): string | null {
   return null;
 }
 
-async function request(path: string, method: "GET" | "POST", body?: object, token?: string): Promise<unknown> {
+export async function request(path: string, method: "GET" | "POST" | "PATCH" | "DELETE", body?: object, token?: string): Promise<unknown> {
   let response: Response;
   try {
     response = await fetch(path, {

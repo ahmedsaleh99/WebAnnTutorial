@@ -13,29 +13,29 @@ describe("App", () => {
     const header = screen.getByRole("banner");
     const headerContent = within(header);
 
-    expect(headerContent.getByRole("link", { name: "WebAnn home" })).toBeInTheDocument();
+    expect(headerContent.getByText("Annotation Platform")).toBeInTheDocument();
     expect(headerContent.getByRole("navigation", { name: "Primary navigation" })).toBeInTheDocument();
     expect(screen.getByRole("main")).toBeInTheDocument();
-    expect(screen.getByRole("heading", { name: "Dashboard", level: 1 })).toBeInTheDocument();
-    expect(screen.queryByRole("link", { name: "Configuration" })).not.toBeInTheDocument();
-    expect(headerContent.getByRole("button", { name: "User: amina" })).toBeDisabled();
-    expect(headerContent.getByRole("button", { name: "Log out" })).toBeEnabled();
+    expect(screen.getByRole("heading", { name: "My jobs", level: 1 })).toBeInTheDocument();
+    expect(screen.queryByRole("button", { name: "Project templates" })).not.toBeInTheDocument();
+    expect(headerContent.getByText("amina")).toBeInTheDocument();
+    expect(headerContent.getByRole("button", { name: "Sign out" })).toBeEnabled();
   });
 
-  it("starts keyboard focus at the brand link", async () => {
+  it("starts keyboard focus at the Jobs navigation button", async () => {
     const user = userEvent.setup();
     render(<App user={annotator} onLogout={() => undefined} />);
 
     await user.tab();
 
-    expect(screen.getByRole("link", { name: "WebAnn home" })).toHaveFocus();
+    expect(screen.getByRole("button", { name: "My Jobs" })).toHaveFocus();
   });
 
   it("calls logout when the user activates the header button", async () => {
     const onLogout = vi.fn();
     render(<App user={annotator} onLogout={onLogout} />);
 
-    await userEvent.setup().click(screen.getByRole("button", { name: "Log out" }));
+    await userEvent.setup().click(screen.getByRole("button", { name: "Sign out" }));
 
     expect(onLogout).toHaveBeenCalledOnce();
   });
@@ -44,6 +44,7 @@ describe("App", () => {
     const admin = { ...annotator, role: "admin" as const };
     render(<App user={admin} onLogout={() => undefined} />);
 
-    expect(screen.getByRole("link", { name: "Configuration" })).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "Project templates" })).toBeInTheDocument();
+    expect(within(screen.getByRole("banner")).getByText("Admin")).toBeInTheDocument();
   });
 });

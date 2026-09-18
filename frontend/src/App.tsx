@@ -2,59 +2,69 @@ import { useEffect, useState } from "react";
 
 import type { AuthUser } from "./api";
 import { navigationFor } from "./navigation";
+import { TemplatesPage } from "./TemplatesPage";
 
 interface AppProps {
   user: AuthUser;
   onLogout: () => void;
   loggingOut?: boolean;
   error?: string | null;
+  token?: string;
+  onUnauthorized?: () => void;
 }
 
-export function App({ user, onLogout, loggingOut = false, error = null }: AppProps) {
-  const [ready, setReady] = useState(false);
+const ignoreUnauthorized = () => undefined;
+
+export function App({ user, onLogout, loggingOut = false, error = null, token = "", onUnauthorized = ignoreUnauthorized }: AppProps) {
+  const [section, setSection] = useState(window.location.hash);
 
   useEffect(() => {
-    document.title = "WebAnn · Dashboard";
-    setReady(true);
+    const updateSection = () => setSection(window.location.hash);
+    window.addEventListener("hashchange", updateSection);
+    return () => window.removeEventListener("hashchange", updateSection);
   }, []);
 
+  useEffect(() => {
+    const title = navigationFor(user.role).find((item) => item.href === section)?.label ?? "Jobs";
+    document.title = `${title} · Annotation Platform`;
+  }, [section, user.role]);
+
   return (
-    <div className="app-shell">
+    <div className="dashboard">
       <header className="topbar">
-        <a className="brand" href="#dashboard" aria-label="WebAnn home">
-          WebAnn
-        </a>
+        <div className="brand-mark small" aria-hidden="true">SE</div>
+        <strong>Annotation Platform</strong>
         <nav aria-label="Primary navigation">
-          <ul>
-            {navigationFor(user.role).map((item) => (
-              <li key={item.href}>
-                <a href={item.href}>{item.label}</a>
-              </li>
-            ))}
-          </ul>
+          {navigationFor(user.role).map((item) => (
+            <button
+              key={item.href}
+              type="button"
+              className={item.href === (section || "#jobs") ? "active" : ""}
+              aria-current={item.href === (section || "#jobs") ? "page" : undefined}
+              onClick={() => { window.location.hash = item.href; }}
+            >
+              {item.href === "#jobs" && user.role === "annotator" ? "My Jobs" : item.label}
+            </button>
+          ))}
         </nav>
-        <div className="account-actions" aria-label="Account controls">
-          <button type="button" disabled title="Account menu arrives in a later lesson">
-            User: {user.username}
-          </button>
+        <div className="account" aria-label="Account controls">
+          <span>{user.username}<small>{user.role === "admin" ? "Admin" : user.role === "manager" ? "Manager" : "Annotator"}</small></span>
           <button type="button" onClick={onLogout} disabled={loggingOut}>
-            {loggingOut ? "Logging out…" : "Log out"}
+            {loggingOut ? "Signing out…" : "Sign out"}
           </button>
         </div>
       </header>
-      <main>
+      <main className="content">
         {error && <p role="alert">{error}</p>}
-        <p className="eyebrow">Annotation workspace</p>
-        <h1>Dashboard</h1>
-        <p>
-          {ready
-            ? "Your workspace is ready."
-            : "Preparing your annotation workspace…"}
-        </p>
-        <section aria-labelledby="assigned-heading" className="summary-card">
-          <h2 id="assigned-heading">Assigned work</h2>
-          <p>Assignments will appear after the API is connected in Lesson 10.</p>
-        </section>
+        {section === "#templates" && user.role === "admin" ? <TemplatesPage token={token} onUnauthorized={onUnauthorized} />
+          : <section aria-labelledby="workspace-heading" className="workspace-placeholder">
+            <div className="page-heading"><div><small>WORKSPACE</small><h1 id="workspace-heading">
+              {section && navigationFor(user.role).some((item) => item.href === section) && section !== "#jobs"
+                ? navigationFor(user.role).find((item) => item.href === section)?.label
+                : user.role === "annotator" ? "My jobs" : "Annotation jobs"}
+            </h1></div></div>
+            <p>This workflow is covered in a later lesson.</p>
+          </section>}
       </main>
     </div>
   );
