@@ -17,7 +17,7 @@ describe("navigationFor", () => {
   });
 
   it("adds configuration navigation only for administrators", () => {
-    expect(navigationFor("administrator").map((item) => item.label)).toContain(
+    expect(navigationFor("admin").map((item) => item.label)).toContain(
       "Configuration",
     );
     expect(navigationFor("manager").map((item) => item.label)).not.toContain(

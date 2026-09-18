@@ -1,7 +1,7 @@
 .PHONY: backend-check backend-run backend-test bootstrap check container-check container-test format frontend-bootstrap frontend-check frontend-test hooks shell-check validate verify-node verify-python
 
 PYTHON ?= python3
-BACKEND_PORT ?= 8001
+BACKEND_PORT ?= 8002
 VENV := .venv
 PRE_COMMIT := $(VENV)/bin/pre-commit
 

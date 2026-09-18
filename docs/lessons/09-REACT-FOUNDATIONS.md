@@ -1504,12 +1504,13 @@ to `dist/index.html`, allowing a future client-side route such as `/projects/`
 to load the React app and let React decide what page to show. Lesson 9 does
 not implement those routes yet.
 
-There is an important limitation: the current fallback also returns
-`index.html` for a missing asset or unrecognized `/api/` path. Therefore,
-`server.mjs` is a minimal tutorial static server, **not** a general API proxy
-or a fully hardened production web server. Do not infer API success merely
-because an unknown path returned HTTP 200. Later lessons must define explicit
-API routing and appropriate 404 behavior as those features are added.
+There is an important limitation at the Lesson 9 checkpoint: the fallback
+also returns `index.html` for a missing asset or unrecognized `/api/` path.
+Here `server.mjs` is a minimal tutorial static server, **not** a general API
+proxy or a fully hardened production web server. Do not infer API success
+merely because an unknown path returned HTTP 200. Lesson 10 adds explicit
+`/api/` proxy routing; appropriate 404 behavior for other missing paths
+remains a later improvement.
 
 After `docker compose up --build --detach --wait`, inspect the behavior:
 

@@ -1,12 +1,16 @@
 import { useEffect, useState } from "react";
 
-import { navigationFor, type UserRole } from "./navigation";
+import type { AuthUser } from "./api";
+import { navigationFor } from "./navigation";
 
 interface AppProps {
-  role?: UserRole;
+  user: AuthUser;
+  onLogout: () => void;
+  loggingOut?: boolean;
+  error?: string | null;
 }
 
-export function App({ role = "annotator" }: AppProps) {
+export function App({ user, onLogout, loggingOut = false, error = null }: AppProps) {
   const [ready, setReady] = useState(false);
 
   useEffect(() => {
@@ -22,7 +26,7 @@ export function App({ role = "annotator" }: AppProps) {
         </a>
         <nav aria-label="Primary navigation">
           <ul>
-            {navigationFor(role).map((item) => (
+            {navigationFor(user.role).map((item) => (
               <li key={item.href}>
                 <a href={item.href}>{item.label}</a>
               </li>
@@ -30,15 +34,16 @@ export function App({ role = "annotator" }: AppProps) {
           </ul>
         </nav>
         <div className="account-actions" aria-label="Account controls">
-          <button type="button" disabled title="Account controls arrive with authentication">
-            User: {role}
+          <button type="button" disabled title="Account menu arrives in a later lesson">
+            User: {user.username}
           </button>
-          <button type="button" disabled title="Logout arrives with authentication">
-            Log out
+          <button type="button" onClick={onLogout} disabled={loggingOut}>
+            {loggingOut ? "Logging out…" : "Log out"}
           </button>
         </div>
       </header>
       <main>
+        {error && <p role="alert">{error}</p>}
         <p className="eyebrow">Annotation workspace</p>
         <h1>Dashboard</h1>
         <p>

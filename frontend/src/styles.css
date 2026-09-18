@@ -23,6 +23,13 @@ main { padding: clamp(1.5rem, 4vw, 4rem); }
 h1 { margin-block: .25rem; font-size: clamp(2rem, 5vw, 3.4rem); }
 .summary-card { max-width: 42rem; margin-top: 2rem; padding: 1.5rem; background: white; border: 1px solid #dce1ec; border-radius: .8rem; box-shadow: 0 .5rem 2rem rgb(36 47 75 / 8%); }
 .error-page { max-width: 45rem; margin: 4rem auto; }
+.auth-page { max-width: 28rem; margin: clamp(2rem, 8vh, 6rem) auto; padding: 1.5rem; }
+.auth-page form { display: grid; gap: .75rem; margin-top: 1.5rem; }
+.auth-page label { font-weight: 650; }
+.auth-page input { width: 100%; padding: .7rem; border: 1px solid #8f9bb7; border-radius: .4rem; font: inherit; }
+.auth-page button { padding: .75rem; color: white; background: #6045c4; border: 0; border-radius: .4rem; font: inherit; }
+.auth-page input:focus-visible, .auth-page button:focus-visible, .account-actions button:focus-visible { outline: 3px solid #b9a8ff; outline-offset: 2px; }
+[role="alert"] { padding: .75rem; color: #742626; background: #fff0f0; border: 1px solid #d9aaaa; border-radius: .4rem; }
 
 @media (max-width: 640px) {
   .topbar { flex-wrap: wrap; gap: .75rem; }

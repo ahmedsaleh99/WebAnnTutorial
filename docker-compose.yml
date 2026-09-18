@@ -53,6 +53,7 @@ services:
       context: ./frontend
     environment:
       API_URL: http://api:8000/health/
+      API_ORIGIN: http://api:8000
       PORT: "5173"
     ports:
       - "${FRONTEND_PORT:-5173}:5173"

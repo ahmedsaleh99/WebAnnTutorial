@@ -38,7 +38,9 @@ assert_http_status() {
   local expected="$3"
   local actual
 
-  actual="$(curl --silent --output /dev/null --write-out '%{http_code}' "$url")"
+  shift 3
+
+  actual="$(curl --silent --output /dev/null --write-out '%{http_code}' "$@" "$url")"
   if [[ "$actual" != "$expected" ]]; then
     echo "FAIL: $description returned HTTP $actual; expected $expected." >&2
     return 1
@@ -55,6 +57,11 @@ assert_response_contains "API health check" "http://localhost:${API_PORT}/health
 assert_response_contains "frontend health check" "http://localhost:${FRONTEND_PORT}/health/" '"status":"ok"'
 assert_response_contains "service-to-service request" "http://localhost:${FRONTEND_PORT}/api-health/" '"service": "api"'
 assert_http_status "anonymous API access is rejected" "http://localhost:${API_PORT}/api/templates/" "401"
+assert_http_status "frontend API proxy rejects anonymous access" "http://localhost:${FRONTEND_PORT}/api/auth/me/" "401"
+assert_http_status "frontend proxy forwards JSON login requests" \
+  "http://localhost:${FRONTEND_PORT}/api/auth/login/" "400" \
+  --request POST --header "Content-Type: application/json" \
+  --data '{"username":"missing-user","password":"wrong"}'
 
 migrations="$("${compose[@]}" exec --no-TTY api python manage.py showmigrations annotations)"
 if [[ "$migrations" != *"[X] 0001_initial"* || "$migrations" != *"[X] 0002_usersecurity"* || "$migrations" != *"[X] 0003_annotationjob_annotationworkitem_annotationresult_and_more"* ]]; then

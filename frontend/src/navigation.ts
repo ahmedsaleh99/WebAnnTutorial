@@ -1,4 +1,4 @@
-export type UserRole = "annotator" | "manager" | "administrator";
+import type { UserRole } from "./api";
 
 export interface NavigationItem {
   href: string;
@@ -12,10 +12,10 @@ const commonItems: NavigationItem[] = [
 
 export function navigationFor(role: UserRole): NavigationItem[] {
   const items = [...commonItems];
-  if (role === "manager" || role === "administrator") {
+  if (role === "manager" || role === "admin") {
     items.push({ href: "#workflow", label: "Workflow" });
   }
-  if (role === "administrator") {
+  if (role === "admin") {
     items.push({ href: "#configuration", label: "Configuration" });
   }
   return items;

@@ -33,6 +33,19 @@ Open:
 - frontend health: <http://localhost:5173/health/>
 - API health: <http://localhost:8000/health/>
 - frontend-to-API network check: <http://localhost:5173/api-health/>
+- proxied API route: <http://localhost:5173/api/auth/me/> (returns 401 before sign-in)
+
+The frontend now opens at the sign-in form. To test a real account in this
+local stack, run `docker compose exec api python manage.py createsuperuser`
+and enter credentials interactively. Do not put a password in a command line
+or commit it to the repository. The tutorial does not seed default accounts.
+
+From Lesson 10, the browser uses the frontend origin for `/api/` requests.
+The frontend container forwards those requests to Django using Compose DNS
+(`api:8000`). `API_ORIGIN` configures that upstream. This avoids exposing a
+second browser origin or adding permissive CORS settings. The API still
+decides authentication and authorization. The `/api-health/` route remains a
+separate diagnostic check, not the general API proxy.
 
 The `db` service is PostgreSQL. It is private to the Compose network and stores
 data in the `postgres-data` named volume. The API waits for PostgreSQL to become
@@ -132,11 +145,16 @@ or container permission problem.
    resolves `api` and communicates across the internal network.
 10. Calls `/api/templates/` anonymously and requires HTTP 401, proving the built
     API no longer exposes configuration without credentials.
-11. Runs `showmigrations` inside the API and verifies all three annotations
+11. Calls `/api/auth/me/` through the frontend and requires HTTP 401, proving
+    the production-like frontend forwards API requests instead of returning
+    its `index.html` fallback.
+12. Posts invalid JSON credentials through the same proxy and requires 400,
+    proving the request method and body reach Django.
+13. Runs `showmigrations` inside the API and verifies all three annotations
     migrations are applied.
-12. Runs the Django suite inside the API container, where Django creates an
+14. Runs the Django suite inside the API container, where Django creates an
     isolated PostgreSQL test database and removes it afterward.
-13. Runs `docker compose down --volumes --remove-orphans` through the trap,
+15. Runs `docker compose down --volumes --remove-orphans` through the trap,
     removing test containers, network, and data even when an assertion fails.
 
 The script prints a named `PASS` or `FAIL` message for each HTTP assertion and

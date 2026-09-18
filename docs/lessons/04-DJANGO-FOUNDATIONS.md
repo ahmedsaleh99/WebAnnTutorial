@@ -245,8 +245,8 @@ make backend-test
 make backend-run
 ```
 
-`backend-run` starts the development server on port 8001 with explicitly local
-settings. Port 8001 avoids a collision when the Compose API owns port 8000. It
+`backend-run` starts the development server on port 8002 with explicitly local
+settings. Port 8002 avoids a collision when the Compose API owns port 8000. It
 is for development only, not production serving. Run:
 
 ```bash
@@ -310,13 +310,13 @@ git diff --check
 git status --short
 ```
 
-Start the backend manually and visit <http://127.0.0.1:8001/health/>:
+Start the backend manually and visit <http://127.0.0.1:8002/health/>:
 
 ```bash
 make backend-run
 ```
 
-If port 8001 is also occupied, select another host port without editing the
+If port 8002 is also occupied, select another host port without editing the
 Makefile:
 
 ```bash

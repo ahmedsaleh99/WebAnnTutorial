@@ -190,6 +190,12 @@ the backend too; a frontend redirect alone is not security enforcement.
 
 The one-to-one relationship avoids modifying Django's built-in user model at
 this stage and guarantees at most one security-policy record per user.
+If the record is missing, return `must_change_password=true` for ordinary
+users and managers. A superuser without a record returns `false`; this covers
+the usual interactive `createsuperuser` path. An explicit
+record overrides either fallback, including for a superuser provisioned with
+a temporary password. See `docs/AUTHENTICATION.md` for the account-setup
+command that marks a password change as required.
 
 ### RBAC and least privilege
 
