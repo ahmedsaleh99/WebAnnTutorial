@@ -5,6 +5,7 @@ import { fileURLToPath } from "node:url";
 
 const port = Number(process.env.PORT ?? 5173);
 const apiUrl = process.env.API_URL ?? "http://api:8000/health/";
+const apiOrigin = process.env.API_ORIGIN ?? "http://api:8000";
 const applicationRoot = path.dirname(fileURLToPath(import.meta.url));
 const distributionRoot = path.join(applicationRoot, "dist");
 const contentTypes = {
@@ -33,6 +34,45 @@ async function serveApplication(request, response) {
   }
 }
 
+async function proxyApi(request, response) {
+  try {
+    const requestPath = new URL(request.url ?? "/", "http://localhost");
+    const url = new URL(requestPath.pathname + requestPath.search, apiOrigin);
+    const chunks = [];
+    let size = 0;
+    for await (const chunk of request) {
+      size += chunk.length;
+      if (size > 1024 * 1024) {
+        response.writeHead(413, { "Content-Type": "application/json" });
+        response.end(JSON.stringify({ detail: "Request body is too large." }));
+        return;
+      }
+      chunks.push(chunk);
+    }
+    const headers = {};
+    for (const name of ["accept", "authorization", "content-type", "cookie"]) {
+      if (typeof request.headers[name] === "string") headers[name] = request.headers[name];
+    }
+    const upstream = await fetch(url, {
+      method: request.method,
+      headers,
+      ...(chunks.length ? { body: Buffer.concat(chunks) } : {}),
+      redirect: "manual",
+    });
+    const responseHeaders = {
+      "Content-Type": upstream.headers.get("content-type") ?? "application/octet-stream",
+    };
+    const cookies = upstream.headers.getSetCookie();
+    if (cookies.length) responseHeaders["Set-Cookie"] = cookies;
+    const responseBody = Buffer.from(await upstream.arrayBuffer());
+    response.writeHead(upstream.status, responseHeaders);
+    response.end(responseBody);
+  } catch {
+    response.writeHead(502, { "Content-Type": "application/json" });
+    response.end(JSON.stringify({ detail: "The API is unavailable." }));
+  }
+}
+
 const server = http.createServer(async (request, response) => {
   if (request.url === "/health/") {
     const body = JSON.stringify({ service: "frontend", status: "ok" });
@@ -54,6 +94,11 @@ const server = http.createServer(async (request, response) => {
       response.writeHead(502, { "Content-Type": "application/json" });
       response.end(body);
     }
+    return;
+  }
+
+  if (new URL(request.url ?? "/", "http://localhost").pathname.startsWith("/api/")) {
+    await proxyApi(request, response);
     return;
   }
 

@@ -40,6 +40,48 @@ class AuthenticationEndpointTests(APITestCase):
         self.assertTrue(media_cookie["secure"])
         self.assertEqual(media_cookie["samesite"], "Strict")
 
+    def test_missing_security_record_requires_change_for_regular_user(self):
+        self.user.security_settings.delete()
+
+        response = self.client.post(
+            "/api/auth/login/",
+            {"username": self.user.username, "password": self.password},
+            format="json",
+        )
+
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertTrue(response.data["user"]["must_change_password"])
+
+    def test_missing_security_record_exempts_interactive_superuser(self):
+        admin = get_user_model().objects.create_superuser(
+            username="admin", password=self.password
+        )
+
+        response = self.client.post(
+            "/api/auth/login/",
+            {"username": admin.username, "password": self.password},
+            format="json",
+        )
+
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(response.data["user"]["role"], "admin")
+        self.assertFalse(response.data["user"]["must_change_password"])
+
+    def test_explicit_security_record_can_require_superuser_change(self):
+        admin = get_user_model().objects.create_superuser(
+            username="admin", password=self.password
+        )
+        UserSecurity.objects.create(user=admin, must_change_password=True)
+
+        response = self.client.post(
+            "/api/auth/login/",
+            {"username": admin.username, "password": self.password},
+            format="json",
+        )
+
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertTrue(response.data["user"]["must_change_password"])
+
     def test_invalid_password_and_inactive_user_have_same_error(self):
         wrong_password_response = self.client.post(
             "/api/auth/login/",

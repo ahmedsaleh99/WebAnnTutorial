@@ -45,6 +45,13 @@ Except for login and media-cookie authorization, API endpoints require:
 Authorization: Token <token-key>
 ```
 
+From Lesson 10, the React frontend calls relative `/api/` URLs. Vite forwards
+them to local Django during development; `frontend/server.mjs` forwards them
+inside Compose. The browser therefore stays on the frontend origin. A proxied
+401 is still Django's authentication decision, not a frontend permission
+check. The `webann_media_token` cookie remains HTTP-only and is forwarded
+through the same-origin proxy when Django sets or clears it.
+
 All authenticated roles may read configuration. Only administrators may create,
 update, or delete it. See [Authentication and roles](AUTHENTICATION.md).
 

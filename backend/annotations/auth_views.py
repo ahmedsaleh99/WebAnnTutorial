@@ -15,7 +15,9 @@ def user_data(user):
     try:
         must_change_password = user.security_settings.must_change_password
     except ObjectDoesNotExist:
-        must_change_password = False
+        # A missing policy record must not bypass a required change for a
+        # regular account. Superusers without a record are exempt by policy.
+        must_change_password = not user.is_superuser
 
     if user.is_superuser:
         role = "admin"

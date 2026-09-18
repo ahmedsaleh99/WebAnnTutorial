@@ -1,7 +1,7 @@
 import { StrictMode } from "react";
 import { createRoot } from "react-dom/client";
 
-import { App } from "./App";
+import { AuthGate } from "./AuthGate";
 import { ErrorBoundary } from "./ErrorBoundary";
 import "./styles.css";
 
@@ -13,7 +13,7 @@ if (!rootElement) {
 createRoot(rootElement).render(
   <StrictMode>
     <ErrorBoundary>
-      <App />
+      <AuthGate />
     </ErrorBoundary>
   </StrictMode>,
 );

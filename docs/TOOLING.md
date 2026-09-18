@@ -144,7 +144,7 @@ make validate     # run repository-policy checks only
 make shell-check  # parse shell scripts without executing them
 make backend-check # format-check, lint, validate, and test Django
 make backend-test  # run only Django tests
-make backend-run   # start Django at http://127.0.0.1:8001
+make backend-run   # start Django at http://127.0.0.1:8002
 make frontend-bootstrap # install the package-lock with npm ci
 make frontend-test # run Vitest
 make frontend-check # test, type-check, and build React
@@ -155,7 +155,7 @@ make frontend-check # test, type-check, and build React
 
 `make backend-run` supplies an explicitly insecure development key. Runtime
 settings come from environment variables; real secrets must never be committed.
-Port 8001 avoids conflicting with the Docker API on port 8000. Override it when
+Port 8002 avoids conflicting with the Docker API on port 8000. Override it when
 necessary:
 
 ```bash
@@ -218,3 +218,24 @@ again. A hook provides early feedback; CI remains the shared enforcement gate.
 Activate or install Node.js 22, then verify `node --version`. With `nvm`, run
 `nvm install 22` followed by `nvm use 22`. Run `make frontend-bootstrap` again
 after switching Node versions.
+
+### `npm ci` reports `EACCES` inside `frontend/node_modules`
+
+Check ownership of the generated installation and the directory containing
+the failing file:
+
+```bash
+stat -c '%U:%G %a %n' frontend/node_modules frontend/node_modules/.bin
+```
+
+If a root-run or differently mapped Docker container created these files,
+your normal user may be unable to remove them during `npm ci`. Do not run
+`sudo npm ci`: that usually creates more files your user cannot manage.
+`node_modules` is generated from the committed lockfile, not source code.
+If the repository directory is writable, move the old installation to a
+uniquely named backup inside the ignored `.venv/` directory, then rerun
+`make frontend-bootstrap` with Node 22 as your normal user. Do not overwrite
+an existing backup. Ask the filesystem administrator to remove the old backup
+if its ownership prevents you from doing so yourself. For future bind-mounted
+Docker commands, run the container with your host UID and GID so generated
+files remain writable.
